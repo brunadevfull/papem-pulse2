@@ -29,16 +29,16 @@ author = "agent"
 
 [[workflows.workflow.tasks]]
 task = "shell.exec"
-args = "npm run dev"
+args = "concurrently \"npm run server\" \"vite --host 0.0.0.0 --port 5000\""
 waitForPort = 5000
 
 [workflows.workflow.metadata]
 outputType = "webview"
 
 [[ports]]
-localPort = 5000
-externalPort = 80
+localPort = 3001
+externalPort = 3001
 
 [[ports]]
-localPort = 44973
-externalPort = 3000
+localPort = 5000
+externalPort = 80

@@ -10,6 +10,7 @@ import { RelationshipCharts } from "@/components/admin/RelationshipCharts";
 import { MotivationCharts } from "@/components/admin/MotivationCharts";
 import { DetailedAnalysis } from "@/components/admin/DetailedAnalysis";
 import { OpenAnswersSection } from "@/components/admin/OpenAnswersSection";
+import { RealTimeStats } from "@/components/admin/RealTimeStats";
 import { AdminAuth } from "@/components/admin/AdminAuth";
 
 export default function Admin() {
@@ -27,8 +28,8 @@ export default function Admin() {
           </div>
         </div>
 
-        {/* Stats Overview */}
-        <StatsOverview />
+        {/* Real-time Statistics */}
+        <RealTimeStats />
 
         {/* Main Analysis */}
         <Card className="shadow-custom-md">
