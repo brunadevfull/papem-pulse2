@@ -1,8 +1,8 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
-import { CheckCircle2, ClipboardList, ArrowRight, ArrowLeft, Anchor, Shield, Star, Waves, BarChart3 } from "lucide-react";
+import { CheckCircle2, ClipboardList, ArrowRight, ArrowLeft, Anchor, Shield, Star, Waves, BarChart3, Save, Info } from "lucide-react";
 import { NavLink } from "react-router-dom";
 import { SurveySection1 } from "@/components/survey/SurveySection1";
 import { SurveySection2 } from "@/components/survey/SurveySection2";
@@ -68,6 +68,8 @@ export default function Survey() {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [surveyData, setSurveyData] = useState<Partial<SurveyData>>({});
   const [validationErrors, setValidationErrors] = useState<string[]>([]);
+  const [lastSaved, setLastSaved] = useState<Date | null>(null);
+  const [showHint, setShowHint] = useState(true);
 
   const totalSections = 4;
   const progress = ((currentSection + 1) / totalSections) * 100;
@@ -102,6 +104,28 @@ export default function Survey() {
       borderColor: "border-accent/20"
     }
   ];
+
+  // Auto-save functionality
+  useEffect(() => {
+    // Load saved data on mount
+    const savedData = localStorage.getItem('papem-survey-data');
+    const savedSection = localStorage.getItem('papem-survey-section');
+    if (savedData) {
+      setSurveyData(JSON.parse(savedData));
+    }
+    if (savedSection) {
+      setCurrentSection(parseInt(savedSection));
+    }
+  }, []);
+
+  // Auto-save data whenever it changes
+  useEffect(() => {
+    if (Object.keys(surveyData).length > 0) {
+      localStorage.setItem('papem-survey-data', JSON.stringify(surveyData));
+      localStorage.setItem('papem-survey-section', currentSection.toString());
+      setLastSaved(new Date());
+    }
+  }, [surveyData, currentSection]);
 
   const updateSurveyData = (data: Partial<SurveyData>) => {
     setSurveyData(prev => ({ ...prev, ...data }));
@@ -307,7 +331,27 @@ export default function Survey() {
           <div className="space-y-4">
             {/* Progress Info */}
             <div className="flex justify-between items-center text-sm text-foreground mb-2">
-              <span className="font-medium">Seção {currentSection + 1} de {totalSections}</span>
+              <div className="flex items-center gap-3">
+                <span className="font-medium">Seção {currentSection + 1} de {totalSections}</span>
+                
+                {/* Auto-save indicator */}
+                {lastSaved && (
+                  <div className="flex items-center gap-1 text-xs text-emerald-600 floating-feedback">
+                    <Save className="w-3 h-3" />
+                    <span>Salvo {lastSaved.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' })}</span>
+                  </div>
+                )}
+                
+                {/* Contextual hint */}
+                {showHint && currentSection === 0 && (
+                  <div className="flex items-center gap-1 text-xs text-primary bg-primary/10 px-2 py-1 rounded-full cursor-pointer hover:bg-primary/20 transition-colors"
+                       onClick={() => setShowHint(false)}>
+                    <Info className="w-3 h-3" />
+                    <span>Suas respostas são salvas automaticamente</span>
+                  </div>
+                )}
+              </div>
+              
               <div className="text-right">
                 <span className="font-semibold text-primary">{Math.round(progress)}% concluído</span>
                 <div className="text-xs text-muted-foreground mt-1">
