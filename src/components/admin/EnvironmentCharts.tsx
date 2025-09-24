@@ -676,31 +676,37 @@ Mostrando dados
                 Por Setor
               </h4>
               <div className="space-y-3">
-                {[
-                  { name: "PAPEM-20", value: 15, color: "#eab308", count: 20 },
-                  { name: "PAPEM-51", value: 15, color: "#a855f7", count: 20 },
-                  { name: "PAPEM-52", value: 15, color: "#f97316", count: 20 }
-                ].map((item, idx) => (
-                  <div key={idx} className="space-y-1">
-                    <div className="flex items-center justify-between text-xs">
-                      <span className="font-medium text-gray-700 dark:text-gray-300">{item.name}</span>
-                      <span className="font-bold text-gray-900 dark:text-gray-100">{item.value}%</span>
+                {(() => {
+                  const colors = ["#eab308", "#a855f7", "#f97316", "#22c55e", "#3b82f6", "#ef4444", "#8b5cf6"];
+                  const sectorsData = [
+                    { name: "PAPEM-10", value: 12, count: 18 },
+                    { name: "PAPEM-20", value: 17, count: 25 },
+                    { name: "PAPEM-30", value: 11, count: 16 },
+                    { name: "PAPEM-40", value: 9, count: 13 },
+                    { name: "PAPEM-51", value: 16, count: 23 },
+                    { name: "PAPEM-52", value: 14, count: 20 },
+                    { name: "SECOM", value: 21, count: 31 }
+                  ];
+                  
+                  return sectorsData.map((item, idx) => (
+                    <div key={idx} className="space-y-1">
+                      <div className="flex items-center justify-between text-xs">
+                        <span className="font-medium text-gray-700 dark:text-gray-300">{item.name}</span>
+                        <span className="font-bold text-gray-900 dark:text-gray-100">{item.value}%</span>
+                      </div>
+                      <div className="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-2">
+                        <div 
+                          className="h-2 rounded-full transition-all duration-1000 ease-out"
+                          style={{ 
+                            backgroundColor: colors[idx % colors.length], 
+                            width: `${Math.min(item.value * 4, 100)}%` // Escalar para visualização
+                          }}
+                        />
+                      </div>
+                      <div className="text-xs text-gray-500">{item.count} pessoas</div>
                     </div>
-                    <div className="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-2">
-                      <div 
-                        className="h-2 rounded-full transition-all duration-1000 ease-out"
-                        style={{ 
-                          backgroundColor: item.color, 
-                          width: `${item.value * 6.5}%` // Escalar para visualização (15% = ~97px)
-                        }}
-                      />
-                    </div>
-                    <div className="text-xs text-gray-500">{item.count} pessoas</div>
-                  </div>
-                ))}
-                <div className="text-xs text-gray-500 pt-2 border-t border-gray-200 dark:border-gray-700">
-                  +4 setores adicionais
-                </div>
+                  ));
+                })()}
               </div>
             </div>
 
