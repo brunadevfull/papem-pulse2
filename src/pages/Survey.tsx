@@ -192,6 +192,11 @@ export default function Survey() {
       setIsSubmitting(false);
       setIsSubmitted(true);
       console.log("Survey submitted:", surveyData);
+      
+      // Clear saved data after successful submission
+      localStorage.removeItem('papem-survey-data');
+      localStorage.removeItem('papem-survey-section');
+      setLastSaved(null);
     }, 2000);
   };
 
