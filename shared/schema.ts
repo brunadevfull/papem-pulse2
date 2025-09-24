@@ -87,4 +87,4 @@ export const surveyValidationSchema = insertSurveyResponseSchema.extend({
   escala_servico: z.string().min(1, "Escala de serviço é obrigatória"),
 });
 
-export type InsertSurveyResponseType = z.infer<typeof insertSurveyResponseSchema>;
+export type InsertSurveyResponseType = z.infer<typeof surveyValidationSchema>;
