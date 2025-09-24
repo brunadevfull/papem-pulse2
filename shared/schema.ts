@@ -80,11 +80,15 @@ export const insertSurveyResponseSchema = createInsertSchema(surveyResponses).om
   created_at: true,
 });
 
-// Schema personalizado com validações
-export const surveyValidationSchema = insertSurveyResponseSchema.extend({
+// Schema personalizado com validações (usando pick para extrair campos específicos)
+export const surveyValidationSchema = insertSurveyResponseSchema.pick({
+  setor_trabalho: true,
+  localizacao_rancho: true, 
+  escala_servico: true,
+}).extend({
   setor_trabalho: z.string().min(1, "Setor de trabalho é obrigatório"),
   localizacao_rancho: z.string().min(1, "Localização do rancho é obrigatória"),
   escala_servico: z.string().min(1, "Escala de serviço é obrigatória"),
 });
 
-export type InsertSurveyResponseType = z.infer<typeof surveyValidationSchema>;
+export type InsertSurveyResponseType = z.infer<typeof insertSurveyResponseSchema>;
