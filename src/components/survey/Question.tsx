@@ -16,12 +16,12 @@ export function Question({ question, name, value, onChange, options, required = 
   return (
     <div 
       id={`question-${name}`}
-      className={`question-card p-8 mb-8 fade-in ${
+      className={`question-card p-6 mb-4 fade-in ${
         hasError ? 'question-card-error' : ''
       }`}
     >
       {hasError && (
-        <div className="mb-6 p-4 bg-destructive/10 border border-destructive/20 rounded-xl">
+        <div className="mb-3 p-3 bg-destructive/10 border border-destructive/20 rounded-xl">
           <p className="text-destructive text-sm font-medium flex items-center gap-2">
             <Building2 className="w-4 h-4" />
             Esta pergunta é obrigatória
@@ -29,20 +29,20 @@ export function Question({ question, name, value, onChange, options, required = 
         </div>
       )}
       
-      <div className="flex items-start gap-6 mb-8">
-        <div className={`w-12 h-12 rounded-2xl flex items-center justify-center flex-shrink-0 shadow-sm transition-all duration-300 ${
+      <div className="flex items-start gap-4 mb-4">
+        <div className={`w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0 shadow-sm transition-all duration-300 ${
           hasError 
             ? 'bg-destructive text-white' 
             : 'bg-gradient-primary text-white'
         }`}>
           {questionNumber ? (
-            <span className="font-bold text-lg">{questionNumber}</span>
+            <span className="font-bold text-base">{questionNumber}</span>
           ) : (
-            <Building2 className="w-6 h-6" />
+            <Building2 className="w-5 h-5" />
           )}
         </div>
         <div className="flex-1">
-          <Label className={`text-base md:text-lg font-semibold leading-relaxed block ${
+          <Label className={`text-sm md:text-base font-semibold leading-snug block ${
             hasError ? 'text-destructive' : 'text-slate-800'
           }`}>
             {question}
@@ -61,7 +61,7 @@ export function Question({ question, name, value, onChange, options, required = 
                 type="button"
                 onClick={() => onChange(option.value)}
                 className={`
-                  option-button text-center min-h-[60px] flex items-center justify-center
+                  option-button text-center min-h-[50px] flex items-center justify-center
                   ${isSelected ? 'option-button-selected' : 'option-button-unselected'}
                 `}
                 style={{

@@ -28,12 +28,12 @@ export function SelectQuestion({
   return (
     <div 
       id={`question-${name}`}
-      className={`question-card p-8 mb-8 fade-in ${
+      className={`question-card p-6 mb-4 fade-in ${
         hasError ? 'question-card-error' : ''
       }`}
     >
       {hasError && (
-        <div className="mb-6 p-4 bg-destructive/10 border border-destructive/20 rounded-xl">
+        <div className="mb-3 p-3 bg-destructive/10 border border-destructive/20 rounded-xl">
           <p className="text-destructive text-sm font-medium flex items-center gap-2">
             <Building2 className="w-4 h-4" />
             Esta pergunta é obrigatória
@@ -41,20 +41,20 @@ export function SelectQuestion({
         </div>
       )}
       
-      <div className="flex items-start gap-6 mb-8">
-        <div className={`w-12 h-12 rounded-2xl flex items-center justify-center flex-shrink-0 shadow-sm transition-all duration-300 ${
+      <div className="flex items-start gap-4 mb-4">
+        <div className={`w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0 shadow-sm transition-all duration-300 ${
           hasError 
             ? 'bg-destructive text-white' 
             : 'bg-gradient-primary text-white'
         }`}>
           {questionNumber ? (
-            <span className="font-bold text-lg">{questionNumber}</span>
+            <span className="font-bold text-base">{questionNumber}</span>
           ) : (
-            <Building2 className="w-6 h-6" />
+            <Building2 className="w-5 h-5" />
           )}
         </div>
         <div className="flex-1">
-          <Label className={`text-base md:text-lg font-semibold leading-relaxed block mb-6 ${
+          <Label className={`text-sm md:text-base font-semibold leading-snug block mb-3 ${
             hasError ? 'text-destructive' : 'text-slate-800'
           }`}>
             {question}
@@ -63,7 +63,7 @@ export function SelectQuestion({
           <div className="flex justify-center">
             <Select value={value} onValueChange={onChange}>
               <SelectTrigger 
-                className={`w-full max-w-lg h-14 text-lg bg-white/95 backdrop-blur-sm border-2 rounded-xl transition-all duration-300 hover:shadow-md ${
+                className={`w-full max-w-lg h-12 text-base bg-white/95 backdrop-blur-sm border-2 rounded-xl transition-all duration-300 hover:shadow-md ${
                   hasError 
                     ? 'border-destructive/50 focus:border-destructive' 
                     : 'border-border focus:border-primary hover:border-primary/50'
@@ -79,7 +79,7 @@ export function SelectQuestion({
                   <SelectItem 
                     key={option.value} 
                     value={option.value}
-                    className="text-base py-3 px-4 hover:bg-primary/5 hover:text-slate-800 focus:bg-primary/10 focus:text-slate-800 rounded-lg mx-1 transition-colors duration-200"
+                    className="text-sm py-2 px-3 hover:bg-primary/5 hover:text-slate-800 focus:bg-primary/10 focus:text-slate-800 rounded-lg mx-1 transition-colors duration-200"
                   >
                     {option.label}
                   </SelectItem>
