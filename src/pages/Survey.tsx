@@ -116,6 +116,9 @@ export default function Survey() {
         const firstErrorElement = document.getElementById(`question-${missingFields[0]}`);
         if (firstErrorElement) {
           firstErrorElement.scrollIntoView({ behavior: 'smooth', block: 'center' });
+          // Add micro-feedback for error
+          firstErrorElement.classList.add('micro-bounce');
+          setTimeout(() => firstErrorElement.classList.remove('micro-bounce'), 400);
         }
       }, 100);
       return;
@@ -123,7 +126,19 @@ export default function Survey() {
     
     setValidationErrors([]);
     if (currentSection < totalSections - 1) {
-      setCurrentSection(currentSection + 1);
+      // Celebrar conclusão da seção
+      const currentElement = document.querySelector('.section-indicator-active');
+      if (currentElement) {
+        currentElement.classList.add('pulse-success');
+        setTimeout(() => currentElement.classList.remove('pulse-success'), 600);
+      }
+      
+      // Transição suave para próxima seção
+      setTimeout(() => {
+        setCurrentSection(currentSection + 1);
+        // Auto-scroll para o topo da nova seção
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+      }, 300);
     }
   };
 
@@ -293,16 +308,32 @@ export default function Survey() {
             {/* Progress Info */}
             <div className="flex justify-between items-center text-sm text-foreground mb-2">
               <span className="font-medium">Seção {currentSection + 1} de {totalSections}</span>
-              <span className="font-semibold text-primary">{Math.round(progress)}% concluído</span>
+              <div className="text-right">
+                <span className="font-semibold text-primary">{Math.round(progress)}% concluído</span>
+                <div className="text-xs text-muted-foreground mt-1">
+                  ⏱️ ~{Math.max(1, Math.ceil((4 - currentSection - 1) * 2))} min restantes
+                </div>
+              </div>
             </div>
             
-            {/* Progress Bar */}
-            <div className="relative">
-              <div className="w-full h-1.5 bg-muted rounded-full overflow-hidden">
-                <div 
-                  className="h-full bg-gradient-to-r from-pink-500 via-purple-500 via-blue-500 via-green-500 via-yellow-500 to-orange-500 rounded-full transition-all duration-700 ease-out"
-                  style={{ width: `${progress}%` }}
-                />
+            {/* Enhanced Progress Bar */}
+            <div className="progress-bar-enhanced">
+              <div 
+                className="progress-fill-enhanced"
+                style={{ width: `${progress}%` }}
+              >
+                <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent animate-pulse" />
+              </div>
+              {/* Progress milestones */}
+              <div className="absolute inset-0 flex justify-between items-center px-1">
+                {[25, 50, 75].map((milestone) => (
+                  <div 
+                    key={milestone}
+                    className={`w-1 h-4 rounded-full transition-all duration-300 ${
+                      progress >= milestone ? 'bg-white shadow-sm' : 'bg-slate-300'
+                    }`}
+                  />
+                ))}
               </div>
             </div>
             
@@ -313,13 +344,15 @@ export default function Survey() {
                 const isCompleted = index < currentSection;
                 
                 return (
-                  <div key={index} className="flex items-center gap-2 flex-1">
+                  <div key={index} className={`section-indicator-enhanced flex-1 ${
+                    isActive ? 'section-indicator-active' : ''
+                  }`}>
                     <div className={`
-                      w-7 h-7 rounded-full border-2 flex items-center justify-center text-sm font-medium transition-all duration-300
+                      w-8 h-8 rounded-full border-2 flex items-center justify-center text-sm font-medium transition-all duration-300 ${isCompleted ? 'micro-bounce' : ''}
                       ${isActive 
-                        ? 'border-primary text-primary bg-transparent' 
+                        ? 'border-primary text-primary bg-primary/10 shadow-sm' 
                         : isCompleted
-                        ? 'border-success text-success bg-transparent'
+                        ? 'border-success text-white bg-success shadow-sm'
                         : 'border-muted-foreground text-muted-foreground bg-transparent'
                       }
                     `}>

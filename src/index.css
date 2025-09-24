@@ -73,6 +73,14 @@
     /* Animation Variables */
     --transition-smooth: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
     --transition-bounce: all 0.3s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+    --transition-micro: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+    --transition-gentle: all 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+    
+    /* Advanced UI Variables */
+    --blur-glass: blur(16px);
+    --blur-subtle: blur(8px);
+    --scale-hover: 1.02;
+    --scale-active: 0.98;
 
     --radius: 1rem;
 
@@ -216,6 +224,64 @@
     border-radius: 0 0 8px 8px;
   }
 
+  /* Advanced UI Classes */
+  .question-card-enhanced {
+    @apply relative bg-white rounded-2xl border border-slate-200 shadow-sm;
+    @apply hover:shadow-md hover:border-primary/20 transition-all duration-300;
+    @apply focus-within:shadow-lg focus-within:border-primary/40;
+    background: linear-gradient(145deg, rgba(255,255,255,0.95) 0%, rgba(248,250,252,0.95) 100%);
+  }
+
+  .option-button-enhanced {
+    @apply relative rounded-xl border-2 font-medium transition-all duration-200;
+    @apply hover:scale-[1.02] active:scale-[0.98];
+    @apply focus:outline-none focus:ring-2 focus:ring-primary/30 focus:ring-offset-2;
+    transform-origin: center;
+  }
+
+  .option-button-selected-enhanced {
+    @apply bg-gradient-to-r from-primary to-primary-hover text-white border-primary;
+    @apply shadow-lg shadow-primary/25 hover:shadow-xl hover:shadow-primary/30;
+    @apply scale-[1.02];
+  }
+
+  .option-button-unselected-enhanced {
+    @apply bg-white border-slate-200 text-slate-700;
+    @apply hover:bg-slate-50 hover:border-slate-300 hover:text-slate-800;
+    @apply hover:shadow-sm;
+  }
+
+  .progress-bar-enhanced {
+    @apply relative h-2 bg-slate-100 rounded-full overflow-hidden;
+  }
+
+  .progress-fill-enhanced {
+    @apply h-full rounded-full transition-all duration-700 ease-out;
+    background: linear-gradient(90deg, #22c55e 0%, #16a34a 50%, #15803d 100%);
+    box-shadow: 0 0 20px rgba(34, 197, 94, 0.3);
+  }
+
+  .section-indicator-enhanced {
+    @apply flex items-center gap-3 px-4 py-3 rounded-xl transition-all duration-300;
+    @apply hover:bg-slate-50 cursor-pointer;
+  }
+
+  .section-indicator-active {
+    @apply bg-primary/10 border border-primary/20 shadow-sm;
+  }
+
+  .floating-feedback {
+    animation: float 3s ease-in-out infinite;
+  }
+
+  .pulse-success {
+    animation: pulse-success 0.6s ease-out;
+  }
+
+  .micro-bounce {
+    animation: micro-bounce 0.4s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+  }
+
   /* Subtle animations */
   .fade-in {
     animation: fadeIn 0.6s ease-out;
@@ -233,6 +299,23 @@
   @keyframes slideUp {
     from { opacity: 0; transform: translateY(20px); }
     to { opacity: 1; transform: translateY(0); }
+  }
+
+  @keyframes float {
+    0%, 100% { transform: translateY(0px); }
+    50% { transform: translateY(-4px); }
+  }
+
+  @keyframes pulse-success {
+    0% { transform: scale(1); box-shadow: 0 0 0 0 rgba(34, 197, 94, 0.4); }
+    50% { transform: scale(1.05); box-shadow: 0 0 0 8px rgba(34, 197, 94, 0); }
+    100% { transform: scale(1); box-shadow: 0 0 0 0 rgba(34, 197, 94, 0); }
+  }
+
+  @keyframes micro-bounce {
+    0% { transform: scale(1); }
+    50% { transform: scale(1.1); }
+    100% { transform: scale(1); }
   }
 }
 

@@ -28,8 +28,8 @@ export function SelectQuestion({
   return (
     <div 
       id={`question-${name}`}
-      className={`question-card p-6 mb-4 fade-in ${
-        hasError ? 'question-card-error' : ''
+      className={`question-card-enhanced p-6 mb-4 fade-in ${
+        hasError ? 'question-card-error border-destructive/40' : ''
       }`}
     >
       {hasError && (
@@ -63,10 +63,10 @@ export function SelectQuestion({
           <div className="flex justify-center">
             <Select value={value} onValueChange={onChange}>
               <SelectTrigger 
-                className={`w-full max-w-lg h-12 text-base bg-white/95 backdrop-blur-sm border-2 rounded-xl transition-all duration-300 hover:shadow-md ${
+                className={`w-full max-w-lg h-12 text-base bg-white/95 backdrop-blur-sm border-2 rounded-xl transition-all duration-300 hover:shadow-md hover:scale-[1.01] focus:scale-[1.01] ${
                   hasError 
-                    ? 'border-destructive/50 focus:border-destructive' 
-                    : 'border-border focus:border-primary hover:border-primary/50'
+                    ? 'border-destructive/50 focus:border-destructive focus:ring-2 focus:ring-destructive/20' 
+                    : 'border-border focus:border-primary hover:border-primary/50 focus:ring-2 focus:ring-primary/20'
                 }`}
               >
                 <SelectValue 

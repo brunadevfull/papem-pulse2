@@ -16,8 +16,8 @@ export function Question({ question, name, value, onChange, options, required = 
   return (
     <div 
       id={`question-${name}`}
-      className={`question-card p-6 mb-4 fade-in ${
-        hasError ? 'question-card-error' : ''
+      className={`question-card-enhanced p-6 mb-4 fade-in ${
+        hasError ? 'question-card-error border-destructive/40' : ''
       }`}
     >
       {hasError && (
@@ -60,9 +60,18 @@ export function Question({ question, name, value, onChange, options, required = 
                 key={option.value}
                 type="button"
                 onClick={() => onChange(option.value)}
+                onKeyDown={(e) => {
+                  if (e.key === 'Enter' || e.key === ' ') {
+                    e.preventDefault();
+                    onChange(option.value);
+                  }
+                }}
+                tabIndex={0}
+                aria-pressed={isSelected}
+                aria-label={`${option.label} ${isSelected ? '(selecionado)' : ''}`}
                 className={`
-                  option-button text-center min-h-[50px] flex items-center justify-center
-                  ${isSelected ? 'option-button-selected' : 'option-button-unselected'}
+                  option-button-enhanced text-center min-h-[50px] flex items-center justify-center
+                  ${isSelected ? 'option-button-selected-enhanced pulse-success' : 'option-button-unselected-enhanced'}
                 `}
                 style={{
                   animationDelay: `${index * 0.1}s`
