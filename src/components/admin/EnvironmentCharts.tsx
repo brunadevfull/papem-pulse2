@@ -748,7 +748,7 @@ Mostrando dados
                   if (!alojamentoData?.data) return null;
                   
                   const colors = ["#22c55e", "#3b82f6", "#f59e0b", "#ef4444", "#8b5cf6", "#f97316"];
-                  return alojamentoData.data.slice(0, 3).map((item, idx) => (
+                  return alojamentoData.data.map((item, idx) => (
                     <div key={idx} className="space-y-1">
                       <div className="flex items-center justify-between text-xs">
                         <span className="font-medium text-gray-700 dark:text-gray-300">{item.name}</span>
