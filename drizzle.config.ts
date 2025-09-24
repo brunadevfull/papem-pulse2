@@ -5,11 +5,7 @@ export default defineConfig({
   out: "./drizzle/migrations",
   dialect: "postgresql",
   dbCredentials: {
-    host: "localhost",
-    port: 5432,
-    user: "postgres",
-    password: "suasenha123",
-    database: "papem_clima_organizacional",
+    url: process.env.DATABASE_URL!,
   },
   verbose: true,
   strict: true,

@@ -11,18 +11,18 @@ export const surveyResponses = pgTable("survey_responses", {
   materiais_fornecidos: varchar("materiais_fornecidos", { length: 50 }),
   materiais_adequados: varchar("materiais_adequados", { length: 50 }),
   atendimento_apoio: varchar("atendimento_apoio", { length: 50 }),
-  ambiente_trabalho: varchar("ambiente_trabalho", { length: 50 }),
-  chefia_disponivel: varchar("chefia_disponivel", { length: 50 }),
-  chefia_orientacao: varchar("chefia_orientacao", { length: 50 }),
+  limpeza_adequada: varchar("limpeza_adequada", { length: 50 }),
+  temperatura_adequada: varchar("temperatura_adequada", { length: 50 }),
+  iluminacao_adequada: varchar("iluminacao_adequada", { length: 50 }),
   
   // Alojamento (opcional - baseado na localização)
   localizacao_alojamento: varchar("localizacao_alojamento", { length: 100 }),
   alojamento_condicoes: varchar("alojamento_condicoes", { length: 50 }),
   banheiros_adequados: varchar("banheiros_adequados", { length: 50 }),
   
-  // Rancho (obrigatório)
+  // Rancho e Praça d'Armas
+  praca_darmas_adequada: varchar("praca_darmas_adequada", { length: 50 }),
   localizacao_rancho: varchar("localizacao_rancho", { length: 100 }),
-  praca_darmas_adequada: varchar("praca_darmas_adequada", { length: 50 }), // Só preenchido se rancho = "Praça D'armas"
   rancho_instalacoes: varchar("rancho_instalacoes", { length: 50 }),
   rancho_qualidade: varchar("rancho_qualidade", { length: 50 }),
   
@@ -35,28 +35,35 @@ export const surveyResponses = pgTable("survey_responses", {
   tfm_instalacoes: varchar("tfm_instalacoes", { length: 50 }),
   
   // Seção 2: Relacionamentos
+  chefe_ouve_ideias: varchar("chefe_ouve_ideias", { length: 50 }),
+  chefe_se_importa: varchar("chefe_se_importa", { length: 50 }),
+  contribuir_atividades: varchar("contribuir_atividades", { length: 50 }),
+  chefe_delega: varchar("chefe_delega", { length: 50 }),
   pares_auxiliam: varchar("pares_auxiliam", { length: 50 }),
-  pares_cooperacao: varchar("pares_cooperacao", { length: 50 }),
-  subordinados_orientacao: varchar("subordinados_orientacao", { length: 50 }),
-  subordinados_disponibilidade: varchar("subordinados_disponibilidade", { length: 50 }),
-  chefia_dialogo: varchar("chefia_dialogo", { length: 50 }),
-  chefia_orientacao_relacionamento: varchar("chefia_orientacao_relacionamento", { length: 50 }),
-  chefia_disponibilidade: varchar("chefia_disponibilidade", { length: 50 }),
-  chefia_competencia: varchar("chefia_competencia", { length: 50 }),
-  comunicacao_eficaz: varchar("comunicacao_eficaz", { length: 50 }),
-  informacoes_claras: varchar("informacoes_claras", { length: 50 }),
+  entrosamento_setores: varchar("entrosamento_setores", { length: 50 }),
+  entrosamento_tripulacao: varchar("entrosamento_tripulacao", { length: 50 }),
+  convivio_agradavel: varchar("convivio_agradavel", { length: 50 }),
+  confianca_respeito: varchar("confianca_respeito", { length: 50 }),
   
   // Seção 3: Motivação e Desenvolvimento Profissional
-  reconhecimento_trabalho: varchar("reconhecimento_trabalho", { length: 50 }),
-  oportunidades_crescimento: varchar("oportunidades_crescimento", { length: 50 }),
-  cursos_capacitacao: varchar("cursos_capacitacao", { length: 50 }),
-  atualizacao_conhecimentos: varchar("atualizacao_conhecimentos", { length: 50 }),
-  satisfacao_geral: varchar("satisfacao_geral", { length: 50 }),
-  recomendar_organizacao: varchar("recomendar_organizacao", { length: 50 }),
+  feedback_desempenho: varchar("feedback_desempenho", { length: 50 }),
+  conceito_compativel: varchar("conceito_compativel", { length: 50 }),
+  importancia_atividade: varchar("importancia_atividade", { length: 50 }),
+  trabalho_reconhecido: varchar("trabalho_reconhecido", { length: 50 }),
+  crescimento_estimulado: varchar("crescimento_estimulado", { length: 50 }),
+  cursos_suficientes: varchar("cursos_suficientes", { length: 50 }),
+  programa_treinamento: varchar("programa_treinamento", { length: 50 }),
+  orgulho_trabalhar: varchar("orgulho_trabalhar", { length: 50 }),
+  bem_aproveitado: varchar("bem_aproveitado", { length: 50 }),
+  potencial_outra_funcao: varchar("potencial_outra_funcao", { length: 50 }),
+  carga_trabalho_justa: varchar("carga_trabalho_justa", { length: 50 }),
+  licenca_autorizada: varchar("licenca_autorizada", { length: 50 }),
   
   // Seção 4: Comentários e Sugestões
-  comentarios_gerais: text("comentarios_gerais"),
-  sugestoes_melhorias: text("sugestoes_melhorias"),
+  aspecto_positivo: text("aspecto_positivo"),
+  aspecto_negativo: text("aspecto_negativo"),
+  proposta_processo: text("proposta_processo"),
+  proposta_satisfacao: text("proposta_satisfacao"),
   
   // Metadados
   created_at: timestamp("created_at").defaultNow(),

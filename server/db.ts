@@ -2,17 +2,17 @@ import { Pool } from 'pg';
 import { drizzle } from 'drizzle-orm/node-postgres';
 import * as schema from '@shared/schema';
 
-// Configuração para PostgreSQL local
-const connectionConfig = {
-  host: 'localhost',
-  port: 5432,
-  database: 'papem_clima_organizacional',
-  user: 'postgres',
-  password: 'postgres123',
-};
+if (!process.env.DATABASE_URL) {
+  throw new Error(
+    "DATABASE_URL must be set. Did you forget to provision a database?",
+  );
+}
 
-// Pool de conexões
-export const pool = new Pool(connectionConfig);
+// Pool de conexões usando DATABASE_URL do Replit
+export const pool = new Pool({ 
+  connectionString: process.env.DATABASE_URL,
+  ssl: process.env.NODE_ENV === 'production' ? { rejectUnauthorized: false } : false
+});
 
 // Instância do Drizzle ORM
 export const db = drizzle({ client: pool, schema });
