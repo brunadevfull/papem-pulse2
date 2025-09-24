@@ -289,7 +289,7 @@ export default function Survey() {
 
         {/* Enhanced Progress Section */}
         <div className="survey-card-enhanced p-8 slide-up w-full mx-auto">
-          <div className="space-y-6">
+          <div className="space-y-4">
             {/* Progress Info */}
             <div className="flex justify-between items-center text-sm text-foreground mb-2">
               <span className="font-medium">Seção {currentSection + 1} de {totalSections}</span>
@@ -349,22 +349,30 @@ export default function Survey() {
         <div className="text-center space-y-4 fade-in">
           <div className="inline-flex items-center gap-3 px-6 py-3 bg-primary/10 rounded-2xl border border-primary/20">
             <IconComponent className="w-6 h-6 text-primary" />
-            <h2 className="text-xl font-bold text-foreground">
-              {currentSection === 0 && `${currentSection + 1}. Condições de Trabalho, Serviço e TFM`}
-              {currentSection === 1 && `${currentSection + 1}. Relacionamento`}
-              {currentSection === 2 && `${currentSection + 1}. Motivação e Desenvolvimento Profissional`}
-              {currentSection === 3 && `${currentSection + 1}. Comentários e Sugestões`}
-            </h2>
+            <div className="text-center">
+              <h2 className="text-xl font-bold text-foreground">
+                {currentSection === 0 && `${currentSection + 1}. Condições de Trabalho, Serviço e TFM`}
+                {currentSection === 1 && `${currentSection + 1}. Relacionamento`}
+                {currentSection === 2 && `${currentSection + 1}. Motivação e Desenvolvimento Profissional`}
+                {currentSection === 3 && `${currentSection + 1}. Comentários e Sugestões`}
+              </h2>
+              <p className="text-sm text-primary/70 font-medium mt-1">
+                {currentSection === 0 && "20 perguntas"}
+                {currentSection === 1 && "9 perguntas"}
+                {currentSection === 2 && "12 perguntas"}
+                {currentSection === 3 && "4 perguntas"}
+              </p>
+            </div>
           </div>
         </div>
         
         {/* Survey Content */}
-        <div className="space-y-6 slide-up max-w-4xl mx-auto">
+        <div className="space-y-4 slide-up max-w-4xl mx-auto">
           {renderCurrentSection()}
         </div>
 
         {/* Enhanced Navigation */}
-        <div className="survey-card-enhanced p-6">
+        <div className="survey-card-enhanced p-4">
           <div className="flex justify-between items-center">
             <Button
               variant="outline"

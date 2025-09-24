@@ -37,7 +37,7 @@ export function SurveySection4({ data, onUpdate, errors = [] }: SurveySection4Pr
   ];
 
   return (
-    <div className="space-y-8">
+    <div className="space-y-4">
       {questions.map((question, index) => {
         const hasError = errors.includes(question.id);
         const questionNumber = index + 1;
@@ -46,12 +46,12 @@ export function SurveySection4({ data, onUpdate, errors = [] }: SurveySection4Pr
           <div 
             key={question.id}
             id={`question-${question.id}`}
-            className={`question-card p-8 mb-8 fade-in ${
+            className={`question-card p-6 mb-4 fade-in ${
               hasError ? 'question-card-error' : ''
             }`}
           >
             {hasError && (
-              <div className="mb-6 p-4 bg-destructive/10 border border-destructive/20 rounded-xl">
+              <div className="mb-3 p-3 bg-destructive/10 border border-destructive/20 rounded-xl">
                 <p className="text-destructive text-sm font-medium flex items-center gap-2">
                   <MessageSquare className="w-4 h-4" />
                   Esta pergunta é obrigatória
@@ -59,16 +59,16 @@ export function SurveySection4({ data, onUpdate, errors = [] }: SurveySection4Pr
               </div>
             )}
             
-            <div className="flex items-start gap-6 mb-8">
-              <div className={`w-12 h-12 rounded-2xl flex items-center justify-center flex-shrink-0 shadow-sm transition-all duration-300 ${
+            <div className="flex items-start gap-4 mb-4">
+              <div className={`w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0 shadow-sm transition-all duration-300 ${
                 hasError 
                   ? 'bg-destructive text-white' 
                   : 'bg-gradient-primary text-white'
               }`}>
-                <span className="font-bold text-lg">{questionNumber}</span>
+                <span className="font-bold text-base">{questionNumber}</span>
               </div>
               <div className="flex-1">
-                <Label className={`text-base md:text-lg font-semibold leading-relaxed block mb-6 ${
+                <Label className={`text-sm md:text-base font-semibold leading-snug block mb-3 ${
                   hasError ? 'text-destructive' : 'text-slate-800'
                 }`}>
                   {question.question}
