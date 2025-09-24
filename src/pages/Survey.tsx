@@ -187,17 +187,36 @@ export default function Survey() {
     }
 
     setIsSubmitting(true);
-    // Simulate API call
-    setTimeout(() => {
+    
+    try {
+      // Submit to backend API
+      const response = await fetch('/api/survey', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(surveyData),
+      });
+
+      const result = await response.json();
+
+      if (result.success) {
+        setIsSubmitted(true);
+        console.log("Survey submitted successfully:", result);
+        
+        // Clear saved data after successful submission
+        localStorage.removeItem('papem-survey-data');
+        localStorage.removeItem('papem-survey-section');
+        setLastSaved(null);
+      } else {
+        throw new Error(result.message || 'Erro ao enviar pesquisa');
+      }
+    } catch (error) {
+      console.error('Erro ao enviar pesquisa:', error);
+      alert('Erro ao enviar pesquisa. Tente novamente.');
+    } finally {
       setIsSubmitting(false);
-      setIsSubmitted(true);
-      console.log("Survey submitted:", surveyData);
-      
-      // Clear saved data after successful submission
-      localStorage.removeItem('papem-survey-data');
-      localStorage.removeItem('papem-survey-section');
-      setLastSaved(null);
-    }, 2000);
+    }
   };
 
   const getMissingFields = () => {
