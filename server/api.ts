@@ -11,6 +11,11 @@ const PORT = process.env.PORT || 3001;
 app.use(cors());
 app.use(express.json());
 
+// Health check endpoint
+app.get('/api/health', (req, res) => {
+  res.json({ status: 'OK', timestamp: new Date().toISOString() });
+});
+
 // POST: Submit survey response
 app.post('/api/survey', async (req, res) => {
   try {
@@ -133,14 +138,14 @@ app.get('/api/analytics', async (req, res) => {
     const satisfactionQuery = await db
       .select({
         // Trabalho e Materiais
-        materiais_fornecidos: sql`avg(case when ${surveyResponses.materiais_fornecidos} = 'Muito Satisfeito' then 5 when ${surveyResponses.materiais_fornecidos} = 'Satisfeito' then 4 when ${surveyResponses.materiais_fornecidos} = 'Neutro' then 3 when ${surveyResponses.materiais_fornecidos} = 'Insatisfeito' then 2 when ${surveyResponses.materiais_fornecidos} = 'Muito Insatisfeito' then 1 end)`,
-        materiais_adequados: sql`avg(case when ${surveyResponses.materiais_adequados} = 'Muito Satisfeito' then 5 when ${surveyResponses.materiais_adequados} = 'Satisfeito' then 4 when ${surveyResponses.materiais_adequados} = 'Neutro' then 3 when ${surveyResponses.materiais_adequados} = 'Insatisfeito' then 2 when ${surveyResponses.materiais_adequados} = 'Muito Insatisfeito' then 1 end)`,
-        atendimento_apoio: sql`avg(case when ${surveyResponses.atendimento_apoio} = 'Muito Satisfeito' then 5 when ${surveyResponses.atendimento_apoio} = 'Satisfeito' then 4 when ${surveyResponses.atendimento_apoio} = 'Neutro' then 3 when ${surveyResponses.atendimento_apoio} = 'Insatisfeito' then 2 when ${surveyResponses.atendimento_apoio} = 'Muito Insatisfeito' then 1 end)`,
+        materiais_fornecidos: sql`avg(case when ${surveyResponses.materiais_fornecidos} = 'Concordo totalmente' then 5 when ${surveyResponses.materiais_fornecidos} = 'Concordo' then 4 when ${surveyResponses.materiais_fornecidos} = 'Não concordo e nem discordo' then 3 when ${surveyResponses.materiais_fornecidos} = 'Discordo' then 2 when ${surveyResponses.materiais_fornecidos} = 'Discordo totalmente' then 1 end)`,
+        materiais_adequados: sql`avg(case when ${surveyResponses.materiais_adequados} = 'Concordo totalmente' then 5 when ${surveyResponses.materiais_adequados} = 'Concordo' then 4 when ${surveyResponses.materiais_adequados} = 'Não concordo e nem discordo' then 3 when ${surveyResponses.materiais_adequados} = 'Discordo' then 2 when ${surveyResponses.materiais_adequados} = 'Discordo totalmente' then 1 end)`,
+        atendimento_apoio: sql`avg(case when ${surveyResponses.atendimento_apoio} = 'Concordo totalmente' then 5 when ${surveyResponses.atendimento_apoio} = 'Concordo' then 4 when ${surveyResponses.atendimento_apoio} = 'Não concordo e nem discordo' then 3 when ${surveyResponses.atendimento_apoio} = 'Discordo' then 2 when ${surveyResponses.atendimento_apoio} = 'Discordo totalmente' then 1 end)`,
         
         // Ambiente
-        limpeza_adequada: sql`avg(case when ${surveyResponses.limpeza_adequada} = 'Muito Satisfeito' then 5 when ${surveyResponses.limpeza_adequada} = 'Satisfeito' then 4 when ${surveyResponses.limpeza_adequada} = 'Neutro' then 3 when ${surveyResponses.limpeza_adequada} = 'Insatisfeito' then 2 when ${surveyResponses.limpeza_adequada} = 'Muito Insatisfeito' then 1 end)`,
-        temperatura_adequada: sql`avg(case when ${surveyResponses.temperatura_adequada} = 'Muito Satisfeito' then 5 when ${surveyResponses.temperatura_adequada} = 'Satisfeito' then 4 when ${surveyResponses.temperatura_adequada} = 'Neutro' then 3 when ${surveyResponses.temperatura_adequada} = 'Insatisfeito' then 2 when ${surveyResponses.temperatura_adequada} = 'Muito Insatisfeito' then 1 end)`,
-        iluminacao_adequada: sql`avg(case when ${surveyResponses.iluminacao_adequada} = 'Muito Satisfeito' then 5 when ${surveyResponses.iluminacao_adequada} = 'Satisfeito' then 4 when ${surveyResponses.iluminacao_adequada} = 'Neutro' then 3 when ${surveyResponses.iluminacao_adequada} = 'Insatisfeito' then 2 when ${surveyResponses.iluminacao_adequada} = 'Muito Insatisfeito' then 1 end)`,
+        limpeza_adequada: sql`avg(case when ${surveyResponses.limpeza_adequada} = 'Concordo totalmente' then 5 when ${surveyResponses.limpeza_adequada} = 'Concordo' then 4 when ${surveyResponses.limpeza_adequada} = 'Não concordo e nem discordo' then 3 when ${surveyResponses.limpeza_adequada} = 'Discordo' then 2 when ${surveyResponses.limpeza_adequada} = 'Discordo totalmente' then 1 end)`,
+        temperatura_adequada: sql`avg(case when ${surveyResponses.temperatura_adequada} = 'Concordo totalmente' then 5 when ${surveyResponses.temperatura_adequada} = 'Concordo' then 4 when ${surveyResponses.temperatura_adequada} = 'Não concordo e nem discordo' then 3 when ${surveyResponses.temperatura_adequada} = 'Discordo' then 2 when ${surveyResponses.temperatura_adequada} = 'Discordo totalmente' then 1 end)`,
+        iluminacao_adequada: sql`avg(case when ${surveyResponses.iluminacao_adequada} = 'Concordo totalmente' then 5 when ${surveyResponses.iluminacao_adequada} = 'Concordo' then 4 when ${surveyResponses.iluminacao_adequada} = 'Não concordo e nem discordo' then 3 when ${surveyResponses.iluminacao_adequada} = 'Discordo' then 2 when ${surveyResponses.iluminacao_adequada} = 'Discordo totalmente' then 1 end)`,
       })
       .from(surveyResponses);
 
