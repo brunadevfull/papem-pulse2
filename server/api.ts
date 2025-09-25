@@ -1,8 +1,17 @@
 import express from 'express';
 import cors from 'cors';
+import puppeteer from 'puppeteer';
 import { db } from './db';
 import { surveyResponses, surveyStats } from '@shared/schema';
 import { eq, count, sql } from 'drizzle-orm';
+import { 
+  generateSectorChart, 
+  generateRanchoChart, 
+  generateSatisfactionChart, 
+  generateOverallSatisfactionChart, 
+  generateTrendChart 
+} from './reportCharts';
+import { generatePdfTemplate } from './pdfTemplate';
 
 const app = express();
 const PORT = process.env.PORT || 3001;
@@ -178,84 +187,154 @@ app.get('/api/analytics', async (req, res) => {
   }
 });
 
+// GET: Export complete report as downloadable PDF file with charts
+app.get('/api/export/pdf', async (req, res) => {
+  try {
+    // Fetch data for report
+    const reportData = await fetchReportData();
+    
+    // Generate all charts
+    const charts = {
+      sectorChart: await generateSectorChart(reportData.stats.setorDistribution),
+      ranchoChart: await generateRanchoChart(reportData.stats.ranchoDistribution),
+      satisfactionChart: await generateSatisfactionChart(reportData.analytics.satisfactionAverages),
+      overallChart: await generateOverallSatisfactionChart(reportData.generalSatisfaction),
+      trendChart: await generateTrendChart()
+    };
+
+    // Generate HTML with embedded charts
+    const htmlContent = generatePdfTemplate({
+      ...reportData,
+      charts
+    });
+
+    // Launch Puppeteer and generate PDF
+    const browser = await puppeteer.launch({
+      headless: true,
+      args: ['--no-sandbox', '--disable-setuid-sandbox']
+    });
+    
+    try {
+      const page = await browser.newPage();
+      await page.setContent(htmlContent, { waitUntil: 'networkidle0' });
+      
+      const pdfBuffer = await page.pdf({
+        format: 'A4',
+        printBackground: true,
+        margin: {
+          top: '1cm',
+          right: '1cm',
+          bottom: '1cm',
+          left: '1cm'
+        }
+      });
+
+      const fileName = `Relatorio_Clima_Organizacional_PAPEM_${new Date().toISOString().split('T')[0]}.pdf`;
+      
+      res.setHeader('Content-Type', 'application/pdf');
+      res.setHeader('Content-Disposition', `attachment; filename="${fileName}"`);
+      res.send(pdfBuffer);
+      
+    } finally {
+      await browser.close();
+    }
+  } catch (error) {
+    console.error('Erro ao gerar PDF:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Erro ao gerar relatório PDF'
+    });
+  }
+});
+
+// Helper function to fetch report data (DRY principle)
+async function fetchReportData() {
+  // Fetch data
+  const [totalCount] = await db.select({ count: count() }).from(surveyResponses);
+  
+  const setorStats = await db
+    .select({
+      setor: surveyResponses.setor_trabalho,
+      count: count(),
+    })
+    .from(surveyResponses)
+    .where(sql`${surveyResponses.setor_trabalho} IS NOT NULL`)
+    .groupBy(surveyResponses.setor_trabalho)
+    .orderBy(sql`count DESC`);
+
+  const ranchoStats = await db
+    .select({
+      rancho: surveyResponses.localizacao_rancho,
+      count: count(),
+    })
+    .from(surveyResponses)
+    .where(sql`${surveyResponses.localizacao_rancho} IS NOT NULL`)
+    .groupBy(surveyResponses.localizacao_rancho)
+    .orderBy(sql`count DESC`);
+
+  // Calculate satisfaction averages
+  const satisfactionFields = [
+    'materiais_fornecidos', 'materiais_adequados', 'atendimento_apoio',
+    'limpeza_adequada', 'temperatura_adequada', 'iluminacao_adequada',
+    'rancho_instalacoes', 'rancho_qualidade', 'equipamentos_servico'
+  ];
+
+  const satisfactionAverages = {};
+  for (const field of satisfactionFields) {
+    const ratings = await db
+      .select({
+        rating: sql`${surveyResponses[field]}`,
+        count: count(),
+      })
+      .from(surveyResponses)
+      .where(sql`${surveyResponses[field]} IS NOT NULL`)
+      .groupBy(sql`${surveyResponses[field]}`);
+      
+    if (ratings.length > 0) {
+      const weightedSum = ratings.reduce((sum, r) => {
+        const value = ratingToNumber(r.rating);
+        return sum + (value * r.count);
+      }, 0);
+      const totalCount = ratings.reduce((sum, r) => sum + r.count, 0);
+      satisfactionAverages[field] = totalCount > 0 ? weightedSum / totalCount : null;
+    } else {
+      satisfactionAverages[field] = null;
+    }
+  }
+
+  // Calculate general satisfaction
+  const satisfactionValues = Object.values(satisfactionAverages).filter(v => v !== null) as number[];
+  const generalSatisfaction = satisfactionValues.length > 0 
+    ? satisfactionValues.reduce((sum, val) => sum + val, 0) / satisfactionValues.length * 20
+    : 0;
+
+  // Generate date
+  const generatedAt = new Date().toLocaleString('pt-BR', {
+    timeZone: 'America/Sao_Paulo',
+    year: 'numeric',
+    month: 'long',
+    day: 'numeric',
+    hour: '2-digit',
+    minute: '2-digit',
+    weekday: 'long'
+  });
+
+  return {
+    stats: {
+      totalResponses: totalCount.count,
+      setorDistribution: setorStats,
+      ranchoDistribution: ranchoStats
+    },
+    analytics: { satisfactionAverages },
+    generalSatisfaction,
+    generatedAt
+  };
+}
+
 // GET: Export complete report as downloadable HTML file
 app.get('/api/export', async (req, res) => {
   try {
-    // Fetch data
-    const [totalCount] = await db.select({ count: count() }).from(surveyResponses);
-    
-    const setorStats = await db
-      .select({
-        setor: surveyResponses.setor_trabalho,
-        count: count(),
-      })
-      .from(surveyResponses)
-      .where(sql`${surveyResponses.setor_trabalho} IS NOT NULL`)
-      .groupBy(surveyResponses.setor_trabalho)
-      .orderBy(sql`count DESC`);
-
-    const ranchoStats = await db
-      .select({
-        rancho: surveyResponses.localizacao_rancho,
-        count: count(),
-      })
-      .from(surveyResponses)
-      .where(sql`${surveyResponses.localizacao_rancho} IS NOT NULL`)
-      .groupBy(surveyResponses.localizacao_rancho)
-      .orderBy(sql`count DESC`);
-
-    // Calculate satisfaction averages
-    const satisfactionFields = [
-      'materiais_fornecidos', 'materiais_adequados', 'atendimento_apoio',
-      'limpeza_adequada', 'temperatura_adequada', 'iluminacao_adequada',
-      'rancho_instalacoes', 'rancho_qualidade', 'equipamentos_servico'
-    ];
-
-    const satisfactionAverages = {};
-    for (const field of satisfactionFields) {
-      const ratings = await db
-        .select({
-          rating: sql`${surveyResponses[field]}`,
-          count: count(),
-        })
-        .from(surveyResponses)
-        .where(sql`${surveyResponses[field]} IS NOT NULL`)
-        .groupBy(sql`${surveyResponses[field]}`);
-        
-      if (ratings.length > 0) {
-        const weightedSum = ratings.reduce((sum, r) => {
-          const value = ratingToNumber(r.rating);
-          return sum + (value * r.count);
-        }, 0);
-        const totalCount = ratings.reduce((sum, r) => sum + r.count, 0);
-        satisfactionAverages[field] = totalCount > 0 ? weightedSum / totalCount : null;
-      } else {
-        satisfactionAverages[field] = null;
-      }
-    }
-
-    // Generate date
-    const generatedAt = new Date().toLocaleString('pt-BR', {
-      timeZone: 'America/Sao_Paulo',
-      year: 'numeric',
-      month: 'long',
-      day: 'numeric',
-      hour: '2-digit',
-      minute: '2-digit',
-      weekday: 'long'
-    });
-
-    // Generate report
-    const data = {
-      stats: {
-        totalResponses: totalCount.count,
-        setorDistribution: setorStats,
-        ranchoDistribution: ranchoStats
-      },
-      analytics: { satisfactionAverages },
-      generatedAt
-    };
-
+    const data = await fetchReportData();
     const htmlReport = generateReport(data);
     const fileName = `Relatorio_Clima_Organizacional_PAPEM_${new Date().toISOString().split('T')[0]}.html`;
     
