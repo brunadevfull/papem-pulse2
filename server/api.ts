@@ -1,16 +1,9 @@
 import express from 'express';
 import cors from 'cors';
-import puppeteer from 'puppeteer';
 import { db } from './db';
 import { surveyResponses, surveyStats } from '@shared/schema';
 import { eq, count, sql } from 'drizzle-orm';
-import { 
-  generateSectorChart, 
-  generateRanchoChart, 
-  generateSatisfactionChart, 
-  generateOverallSatisfactionChart, 
-  generateTrendChart 
-} from './reportCharts';
+import { generateAllChartsHtml } from './simpleCharts';
 import { generatePdfTemplate } from './pdfTemplate';
 
 const app = express();
@@ -187,62 +180,37 @@ app.get('/api/analytics', async (req, res) => {
   }
 });
 
-// GET: Export complete report as downloadable PDF file with charts
+// GET: Export complete report as downloadable PDF-ready HTML file with charts
 app.get('/api/export/pdf', async (req, res) => {
   try {
     // Fetch data for report
     const reportData = await fetchReportData();
     
-    // Generate all charts
-    const charts = {
-      sectorChart: await generateSectorChart(reportData.stats.setorDistribution),
-      ranchoChart: await generateRanchoChart(reportData.stats.ranchoDistribution),
-      satisfactionChart: await generateSatisfactionChart(reportData.analytics.satisfactionAverages),
-      overallChart: await generateOverallSatisfactionChart(reportData.generalSatisfaction),
-      trendChart: await generateTrendChart()
-    };
+    // Generate charts HTML
+    const chartsHtml = generateAllChartsHtml({
+      sectorDistribution: reportData.stats.setorDistribution,
+      ranchoDistribution: reportData.stats.ranchoDistribution,
+      satisfactionAverages: reportData.analytics.satisfactionAverages,
+      overallSatisfaction: reportData.generalSatisfaction
+    });
 
-    // Generate HTML with embedded charts
+    // Generate HTML with embedded charts - optimized for PDF conversion
     const htmlContent = generatePdfTemplate({
       ...reportData,
-      charts
+      chartsHtml
     });
 
-    // Launch Puppeteer and generate PDF
-    const browser = await puppeteer.launch({
-      headless: true,
-      args: ['--no-sandbox', '--disable-setuid-sandbox']
-    });
+    const fileName = `Relatorio_Clima_Organizacional_PAPEM_${new Date().toISOString().split('T')[0]}.html`;
     
-    try {
-      const page = await browser.newPage();
-      await page.setContent(htmlContent, { waitUntil: 'networkidle0' });
-      
-      const pdfBuffer = await page.pdf({
-        format: 'A4',
-        printBackground: true,
-        margin: {
-          top: '1cm',
-          right: '1cm',
-          bottom: '1cm',
-          left: '1cm'
-        }
-      });
-
-      const fileName = `Relatorio_Clima_Organizacional_PAPEM_${new Date().toISOString().split('T')[0]}.pdf`;
-      
-      res.setHeader('Content-Type', 'application/pdf');
-      res.setHeader('Content-Disposition', `attachment; filename="${fileName}"`);
-      res.send(pdfBuffer);
-      
-    } finally {
-      await browser.close();
-    }
+    res.setHeader('Content-Type', 'text/html; charset=utf-8');
+    res.setHeader('Content-Disposition', `attachment; filename="${fileName}"`);
+    res.send(htmlContent);
+    
   } catch (error) {
-    console.error('Erro ao gerar PDF:', error);
+    console.error('Erro ao gerar relatório:', error);
     res.status(500).json({
       success: false,
-      message: 'Erro ao gerar relatório PDF'
+      message: 'Erro ao gerar relatório'
     });
   }
 });

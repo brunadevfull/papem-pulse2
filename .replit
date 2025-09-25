@@ -5,6 +5,7 @@ integrations = ["javascript_database:1.0.0"]
 
 [nix]
 channel = "stable-25_05"
+packages = ["cairo", "pango", "libjpeg", "giflib", "librsvg", "pixman", "util-linux", "libuuid", "nss", "atk", "libdrm", "xorg.libX11", "xorg.libXrandr", "gtk3"]
 
 [deployment]
 deploymentTarget = "autoscale"
@@ -42,3 +43,7 @@ externalPort = 3001
 [[ports]]
 localPort = 5000
 externalPort = 80
+
+[[ports]]
+localPort = 33929
+externalPort = 3000

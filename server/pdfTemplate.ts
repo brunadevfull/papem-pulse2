@@ -3,15 +3,9 @@ export function generatePdfTemplate(data: {
   stats: any;
   analytics: any;
   generatedAt: string;
-  charts: {
-    sectorChart: string;
-    ranchoChart: string;
-    satisfactionChart: string;
-    overallChart: string;
-    trendChart: string;
-  };
+  chartsHtml: string;
 }) {
-  const { stats, analytics, generatedAt, charts } = data;
+  const { stats, analytics, generatedAt, chartsHtml } = data;
   
   // Calculate general satisfaction
   const satisfactionValues = Object.values(analytics.satisfactionAverages).filter(v => v !== null) as number[];
@@ -345,32 +339,7 @@ export function generatePdfTemplate(data: {
     <!-- Charts Section -->
     <div class="section page-break">
         <h2>📈 ANÁLISE VISUAL DE DADOS</h2>
-        
-        <div class="chart-grid">
-            <div class="chart-container">
-                <h3>Distribuição por Setor</h3>
-                <img src="${charts.sectorChart}" alt="Distribuição por Setor" />
-            </div>
-            <div class="chart-container">
-                <h3>Satisfação Geral</h3>
-                <img src="${charts.overallChart}" alt="Satisfação Geral" />
-            </div>
-        </div>
-        
-        <div class="chart-container">
-            <h3>Distribuição por Rancho</h3>
-            <img src="${charts.ranchoChart}" alt="Distribuição por Rancho" />
-        </div>
-        
-        <div class="chart-container">
-            <h3>Satisfação por Área</h3>
-            <img src="${charts.satisfactionChart}" alt="Satisfação por Área" />
-        </div>
-        
-        <div class="chart-container">
-            <h3>Evolução de Participação</h3>
-            <img src="${charts.trendChart}" alt="Evolução de Participação" />
-        </div>
+        ${chartsHtml}
     </div>
 
     <!-- Detailed Tables -->

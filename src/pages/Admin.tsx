@@ -65,29 +65,35 @@ export default function Admin() {
       const response = await fetch('/api/export/pdf', {
         method: 'GET',
         headers: {
-          'Accept': 'application/pdf',
+          'Accept': 'text/html',
         },
       });
 
       if (!response.ok) {
-        throw new Error('Erro ao gerar relatório PDF');
+        throw new Error('Erro ao gerar relatório');
       }
 
-      const pdfBlob = await response.blob();
+      const htmlContent = await response.text();
+      
+      // Criar blob com o HTML
+      const blob = new Blob([htmlContent], { type: 'text/html;charset=utf-8' });
       
       // Criar link para download
-      const url = window.URL.createObjectURL(pdfBlob);
+      const url = window.URL.createObjectURL(blob);
       const link = document.createElement('a');
       link.href = url;
-      link.download = `Relatorio_Clima_Organizacional_PAPEM_${new Date().toISOString().split('T')[0]}.pdf`;
+      link.download = `Relatorio_Clima_Organizacional_PAPEM_com_Graficos_${new Date().toISOString().split('T')[0]}.html`;
       document.body.appendChild(link);
       link.click();
       document.body.removeChild(link);
       window.URL.revokeObjectURL(url);
       
+      // Mostrar instruções para o usuário
+      alert('📊 Relatório com gráficos baixado!\n\n📋 Como converter para PDF:\n1. Abra o arquivo baixado no seu navegador\n2. Pressione Ctrl+P (Cmd+P no Mac)\n3. Selecione "Salvar como PDF"\n4. Configure margens como "Mínimas"\n5. Ative "Gráficos de fundo"\n\nO arquivo HTML está pronto para conversão profissional!');
+      
     } catch (error) {
-      console.error('Erro ao exportar relatório PDF:', error);
-      alert('Erro ao gerar relatório PDF. Tente novamente.');
+      console.error('Erro ao exportar relatório:', error);
+      alert('Erro ao gerar relatório. Tente novamente.');
     } finally {
       setIsExporting(false);
     }
@@ -134,7 +140,7 @@ export default function Admin() {
                 <>
                   <FileText className="w-4 h-4" />
                   <Download className="w-4 h-4" />
-                  Exportar PDF Completo
+                  PDF com Gráficos
                 </>
               )}
             </Button>
