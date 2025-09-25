@@ -28,8 +28,8 @@ export default function Admin() {
           </div>
         </div>
 
-        {/* Real-time Statistics */}
-        <RealTimeStats />
+        {/* Stats Overview */}
+        <StatsOverview />
 
         {/* Main Analysis */}
         <Card className="shadow-custom-md">
