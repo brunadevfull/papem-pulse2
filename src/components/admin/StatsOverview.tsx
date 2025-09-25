@@ -127,11 +127,11 @@ export function StatsOverview() {
         </CardHeader>
         <CardContent>
           <div className="text-2xl font-bold text-primary">{Math.round(generalSatisfaction)}%</div>
-          <p className="text-xs text-muted-foreground">
+          <div className="text-xs text-muted-foreground">
             <Badge variant={generalSatisfaction > 70 ? "default" : "secondary"} className="text-xs">
               {generalSatisfaction > 70 ? "Positivo" : "Atenção"}
             </Badge>
-          </p>
+          </div>
         </CardContent>
       </Card>
 
