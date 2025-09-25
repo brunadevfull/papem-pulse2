@@ -3,6 +3,7 @@ import cors from 'cors';
 import { db } from './db';
 import { surveyResponses, surveyStats } from '@shared/schema';
 import { eq, count, sql } from 'drizzle-orm';
+import { Document, Packer, Paragraph, Table, TableRow, TableCell, HeadingLevel, AlignmentType, WidthType, BorderStyle, TextRun } from 'docx';
 
 const app = express();
 const PORT = process.env.PORT || 3001;
