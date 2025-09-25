@@ -338,7 +338,7 @@ function generateHtmlReport(data) {
   const { stats, analytics, generatedAt } = data;
   
   // Calculate general satisfaction
-  const satisfactionValues = Object.values(analytics.satisfactionAverages).filter(v => v !== null);
+  const satisfactionValues = Object.values(analytics.satisfactionAverages).filter(v => v !== null) as number[];
   const generalSatisfaction = satisfactionValues.length > 0 
     ? satisfactionValues.reduce((sum, val) => sum + val, 0) / satisfactionValues.length * 20
     : 0;
@@ -646,13 +646,14 @@ function generateHtmlReport(data) {
                               .filter(([_, avg]) => avg !== null)
                               .map(([field, avg]) => {
                                 const friendlyName = getFriendlyFieldName(field);
-                                const score = (avg * 20).toFixed(1);
-                                const status = avg >= 4 ? 'Excelente' : avg >= 3.5 ? 'Bom' : avg >= 3 ? 'Regular' : 'Necessita Atenção';
-                                const gaugeClass = avg >= 3.5 ? 'satisfaction-high' : avg >= 3 ? 'satisfaction-medium' : 'satisfaction-low';
+                                const avgNumber = avg as number;
+                                const score = (avgNumber * 20).toFixed(1);
+                                const status = avgNumber >= 4 ? 'Excelente' : avgNumber >= 3.5 ? 'Bom' : avgNumber >= 3 ? 'Regular' : 'Necessita Atenção';
+                                const gaugeClass = avgNumber >= 3.5 ? 'satisfaction-high' : avgNumber >= 3 ? 'satisfaction-medium' : 'satisfaction-low';
                                 return `
                                   <tr>
                                       <td><strong>${friendlyName}</strong></td>
-                                      <td>${avg.toFixed(2)}/5.0</td>
+                                      <td>${avgNumber.toFixed(2)}/5.0</td>
                                       <td>${status}</td>
                                       <td>
                                           <span class="satisfaction-gauge ${gaugeClass}"></span>
