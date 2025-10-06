@@ -1,10 +1,12 @@
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { ClipboardList, BarChart3, Shield, Users, Target, ArrowRight, Sparkles, Zap, TrendingUp, Award } from "lucide-react";
+import { useStats, ratingToPercentage } from "@/hooks/useStats";
+import { ClipboardList, BarChart3, Shield, Users, Target, ArrowRight, Sparkles, TrendingUp, Clock } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 
 const Index = () => {
   const navigate = useNavigate();
+  const { stats, loading, error } = useStats();
 
   const features = [
     {
@@ -33,12 +35,58 @@ const Index = () => {
     }
   ];
 
-  const stats = [
-    { icon: Users, value: "100%", label: "Anônimo", color: "text-success" },
-    { icon: Zap, value: "15min", label: "Tempo Médio", color: "text-warning" },
-    { icon: TrendingUp, value: "3", label: "Seções", color: "text-primary" },
-    { icon: Award, value: "42", label: "Perguntas", color: "text-accent" }
-  ];
+  const sectionsWithResponses = stats
+    ? Object.values(stats.satisfactionStats || {}).filter((ratings) => ratings && ratings.length > 0)
+    : [];
+
+  const sectionsAnswered = sectionsWithResponses.length;
+
+  const satisfactionPercentage = sectionsAnswered
+    ? Math.round(
+        sectionsWithResponses.reduce(
+          (sum, ratings) => sum + ratingToPercentage(ratings).concordo,
+          0
+        ) / sectionsAnswered
+      )
+    : 0;
+
+  const formattedLastUpdated = stats?.lastUpdated
+    ? new Date(stats.lastUpdated).toLocaleString("pt-BR", {
+        dateStyle: "short",
+        timeStyle: "short"
+      })
+    : "Sem registro";
+
+  const heroStats = stats
+    ? [
+        {
+          icon: Users,
+          value: stats.totalResponses.toLocaleString("pt-BR"),
+          label: "Respostas Coletadas",
+          color: "text-success"
+        },
+        {
+          icon: ClipboardList,
+          value: sectionsAnswered.toString(),
+          label: "Seções Respondidas",
+          color: "text-warning"
+        },
+        {
+          icon: TrendingUp,
+          value: `${satisfactionPercentage}%`,
+          label: "Satisfação Positiva",
+          color: "text-primary"
+        },
+        {
+          icon: Clock,
+          value: formattedLastUpdated,
+          label: "Última atualização",
+          color: "text-accent"
+        }
+      ]
+    : [];
+
+  const placeholderStats = Array.from({ length: 4 });
 
   return (
     <div className="space-y-12 animate-slide-up">
@@ -76,18 +124,55 @@ const Index = () => {
           
           {/* Stats Row */}
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
-            {stats.map((stat, index) => {
-              const IconComponent = stat.icon;
-              return (
-                <div key={index} className="bg-white/10 backdrop-blur-sm rounded-2xl p-4 border border-white/20 text-center animate-scale-in" style={{ animationDelay: `${index * 0.1}s` }}>
-                  <IconComponent className={`w-6 h-6 mx-auto mb-2 ${stat.color} animate-float`} style={{ animationDelay: `${index * 0.5}s` }} />
-                  <div className="text-2xl font-bold mb-1">{stat.value}</div>
-                  <div className="text-sm text-primary-foreground/80">{stat.label}</div>
+            {loading &&
+              placeholderStats.map((_, index) => (
+                <div
+                  key={`placeholder-${index}`}
+                  className="bg-white/10 backdrop-blur-sm rounded-2xl p-4 border border-white/20 animate-pulse"
+                >
+                  <div className="w-6 h-6 mx-auto mb-4 bg-white/20 rounded-full"></div>
+                  <div className="h-6 bg-white/20 rounded mb-2"></div>
+                  <div className="h-3 bg-white/10 rounded"></div>
                 </div>
-              );
-            })}
+              ))}
+
+            {!loading && error && (
+              <div className="col-span-2 md:col-span-4 bg-white/10 backdrop-blur-sm rounded-2xl p-6 border border-white/20 text-center">
+                <p className="text-sm text-red-100 font-medium">Erro ao carregar estatísticas: {error}</p>
+                <p className="text-xs text-primary-foreground/70 mt-2">Tente novamente em instantes.</p>
+              </div>
+            )}
+
+            {!loading && !error && stats &&
+              heroStats.map((stat, index) => {
+                const IconComponent = stat.icon;
+                return (
+                  <div
+                    key={stat.label}
+                    className="bg-white/10 backdrop-blur-sm rounded-2xl p-4 border border-white/20 text-center animate-scale-in"
+                    style={{ animationDelay: `${index * 0.1}s` }}
+                  >
+                    <IconComponent
+                      className={`w-6 h-6 mx-auto mb-2 ${stat.color} animate-float`}
+                      style={{ animationDelay: `${index * 0.5}s` }}
+                    />
+                    <div className="text-2xl font-bold mb-1">{stat.value}</div>
+                    <div className="text-sm text-primary-foreground/80">{stat.label}</div>
+                  </div>
+                );
+              })}
+
+            {!loading && !error && !stats && (
+              <div className="col-span-2 md:col-span-4 bg-white/10 backdrop-blur-sm rounded-2xl p-6 border border-white/20 text-center">
+                <p className="text-sm text-primary-foreground/90 font-medium">
+                  Nenhum dado disponível no momento.
+                </p>
+                <p className="text-xs text-primary-foreground/70 mt-2">
+                  Participe da pesquisa para gerar estatísticas atualizadas.
+                </p>
+              </div>
+            )}
           </div>
-          
           <div className="flex flex-col sm:flex-row gap-4">
             <Button 
               onClick={() => navigate("/survey")}
