@@ -184,20 +184,28 @@ export function generateOverallSatisfactionHtml(overallSatisfaction: number): st
 }
 
 // Generate trend chart (simple line chart)
-export function generateTrendChartHtml(): string {
-  const months = ['Jan', 'Fev', 'Mar', 'Abr', 'Mai', 'Jun'];
-  const responses = [45, 52, 48, 61, 58, 65];
-  const maxValue = Math.max(...responses);
-  
-  const points = responses.map((value, index) => {
-    const x = 50 + (index * 50);
-    const y = 250 - ((value / maxValue) * 180);
-    return { x, y, value, month: months[index] };
-  }).join(' ');
+export function generateTrendChartHtml(timeline: { month: string; count: number }[]): string {
+  if (timeline.length === 0) {
+    return `
+      <div class="chart-container">
+        <h3>Evolução de Participação</h3>
+        <p class="chart-empty">Sem dados de participação suficientes para exibir o gráfico.</p>
+      </div>
+    `;
+  }
 
-  const pathData = responses.map((value, index) => {
-    const x = 50 + (index * 50);
-    const y = 250 - ((value / maxValue) * 180);
+  const counts = timeline.map((item) => item.count);
+  const maxValue = Math.max(...counts, 1);
+  const chartWidth = 300;
+  const chartHeight = 200;
+  const paddingLeft = 50;
+  const paddingTop = 50;
+  const baseLine = paddingTop + chartHeight;
+  const xSpacing = timeline.length > 1 ? chartWidth / (timeline.length - 1) : 0;
+
+  const pathData = timeline.map((item, index) => {
+    const x = paddingLeft + (index * xSpacing);
+    const y = baseLine - ((item.count / maxValue) * (chartHeight - 20));
     return index === 0 ? `M ${x},${y}` : `L ${x},${y}`;
   }).join(' ');
 
@@ -205,36 +213,36 @@ export function generateTrendChartHtml(): string {
     <div class="chart-container">
       <h3>Evolução de Participação</h3>
       <div class="line-chart">
-        <svg width="350" height="300" viewBox="0 0 350 300">
+        <svg width="360" height="300" viewBox="0 0 360 300">
           <!-- Grid lines -->
           <defs>
-            <pattern id="grid" width="50" height="30" patternUnits="userSpaceOnUse">
-              <path d="M 50 0 L 0 0 0 30" fill="none" stroke="#e5e7eb" stroke-width="1"/>
+            <pattern id="grid" width="${timeline.length > 1 ? xSpacing : chartWidth}" height="30" patternUnits="userSpaceOnUse">
+              <path d="M ${timeline.length > 1 ? xSpacing : chartWidth} 0 L 0 0 0 30" fill="none" stroke="#e5e7eb" stroke-width="1"/>
             </pattern>
           </defs>
-          <rect width="300" height="200" x="50" y="50" fill="url(#grid)"/>
-          
+          <rect width="${chartWidth}" height="${chartHeight}" x="${paddingLeft}" y="${paddingTop}" fill="url(#grid)"/>
+
           <!-- Line -->
           <path d="${pathData}" fill="none" stroke="#3b82f6" stroke-width="3"/>
-          
+
           <!-- Points -->
-          ${responses.map((value, index) => {
-            const x = 50 + (index * 50);
-            const y = 250 - ((value / maxValue) * 180);
+          ${timeline.map((item, index) => {
+            const x = paddingLeft + (index * xSpacing);
+            const y = baseLine - ((item.count / maxValue) * (chartHeight - 20));
             return `<circle cx="${x}" cy="${y}" r="4" fill="#1d4ed8"/>`;
           }).join('')}
-          
+
           <!-- Labels -->
-          ${months.map((month, index) => {
-            const x = 50 + (index * 50);
-            return `<text x="${x}" y="275" text-anchor="middle" font-size="12" fill="#6b7280">${month}</text>`;
+          ${timeline.map((item, index) => {
+            const x = paddingLeft + (index * xSpacing);
+            return `<text x="${x}" y="${baseLine + 25}" text-anchor="middle" font-size="12" fill="#6b7280">${item.month}</text>`;
           }).join('')}
-          
+
           <!-- Values -->
-          ${responses.map((value, index) => {
-            const x = 50 + (index * 50);
-            const y = 250 - ((value / maxValue) * 180) - 15;
-            return `<text x="${x}" y="${y}" text-anchor="middle" font-size="11" fill="#374151">${value}</text>`;
+          ${timeline.map((item, index) => {
+            const x = paddingLeft + (index * xSpacing);
+            const y = baseLine - ((item.count / maxValue) * (chartHeight - 20)) - 15;
+            return `<text x="${x}" y="${y}" text-anchor="middle" font-size="11" fill="#374151">${item.count}</text>`;
           }).join('')}
         </svg>
       </div>
@@ -248,6 +256,7 @@ export function generateAllChartsHtml(data: {
   ranchoDistribution: any[];
   satisfactionAverages: Record<string, number>;
   overallSatisfaction: number;
+  participationTimeline: { month: string; count: number }[];
 }): string {
   return `
     <style>
@@ -344,14 +353,20 @@ export function generateAllChartsHtml(data: {
         display: inline-block;
         margin: 20px 0;
       }
+
+      .chart-empty {
+        color: #6b7280;
+        font-size: 14px;
+        margin: 20px 0;
+      }
     </style>
-    
+
     <div class="charts-section">
       ${generateSectorChartHtml(data.sectorDistribution)}
       ${generateOverallSatisfactionHtml(data.overallSatisfaction)}
       ${generateRanchoChartHtml(data.ranchoDistribution)}
       ${generateSatisfactionChartHtml(data.satisfactionAverages)}
-      ${generateTrendChartHtml()}
+      ${generateTrendChartHtml(data.participationTimeline)}
     </div>
   `;
 }

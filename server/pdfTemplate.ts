@@ -4,6 +4,7 @@ export function generatePdfTemplate(data: {
   analytics: any;
   generatedAt: string;
   chartsHtml: string;
+  participationTimeline: { month: string; count: number }[];
 }) {
   const { stats, analytics, generatedAt, chartsHtml } = data;
   
