@@ -2,12 +2,207 @@ import express from 'express';
 import cors from 'cors';
 import { db } from './db';
 import { surveyResponses, surveyStats } from '@shared/schema';
-import { eq, count, sql } from 'drizzle-orm';
+import { eq, count, sql, type SQL } from 'drizzle-orm';
 import { generateAllChartsHtml } from './simpleCharts';
 import { generatePdfTemplate } from './pdfTemplate';
+import type {
+  CommentRecord,
+  QuestionStats,
+  SurveyFilterKey,
+  SurveyFilterParams,
+  SurveyQuestionKey,
+} from './surveyStatsTypes';
 
 const app = express();
 const PORT = process.env.PORT || 3001;
+
+const environmentQuestionKeys = [
+  'materiais_fornecidos',
+  'materiais_adequados',
+  'atendimento_apoio',
+  'limpeza_adequada',
+  'temperatura_adequada',
+  'iluminacao_adequada',
+  'localizacao_alojamento',
+  'alojamento_condicoes',
+  'banheiros_adequados',
+  'praca_darmas_adequada',
+  'localizacao_rancho',
+  'rancho_instalacoes',
+  'rancho_qualidade',
+  'escala_servico',
+  'escala_atrapalha',
+  'equipamentos_servico',
+  'tfm_participa',
+  'tfm_incentivado',
+  'tfm_instalacoes',
+] as const satisfies readonly SurveyQuestionKey[];
+
+const relationshipQuestionKeys = [
+  'chefe_ouve_ideias',
+  'chefe_se_importa',
+  'contribuir_atividades',
+  'chefe_delega',
+  'pares_auxiliam',
+  'entrosamento_setores',
+  'entrosamento_tripulacao',
+  'convivio_agradavel',
+  'confianca_respeito',
+] as const satisfies readonly SurveyQuestionKey[];
+
+const motivationQuestionKeys = [
+  'feedback_desempenho',
+  'conceito_compativel',
+  'importancia_atividade',
+  'trabalho_reconhecido',
+  'crescimento_estimulado',
+  'cursos_suficientes',
+  'programa_treinamento',
+  'orgulho_trabalhar',
+  'bem_aproveitado',
+  'potencial_outra_funcao',
+  'carga_trabalho_justa',
+  'licenca_autorizada',
+] as const satisfies readonly SurveyQuestionKey[];
+
+const openResponseFields = [
+  'aspecto_positivo',
+  'aspecto_negativo',
+  'proposta_processo',
+  'proposta_satisfacao',
+] as const satisfies readonly SurveyQuestionKey[];
+
+const filterKeys = ['setor', 'alojamento', 'rancho', 'escala'] as const satisfies readonly SurveyFilterKey[];
+
+const filterColumnMap: Record<SurveyFilterKey, (typeof surveyResponses)[SurveyQuestionKey]> = {
+  setor: surveyResponses.setor_trabalho,
+  alojamento: surveyResponses.localizacao_alojamento,
+  rancho: surveyResponses.localizacao_rancho,
+  escala: surveyResponses.escala_servico,
+};
+
+type QuestionKeyArray = readonly SurveyQuestionKey[];
+
+function normalizeQueryParam(value: unknown): string | undefined {
+  if (value == null) {
+    return undefined;
+  }
+
+  if (Array.isArray(value)) {
+    for (const item of value) {
+      const normalized = normalizeQueryParam(item);
+      if (normalized) {
+        return normalized;
+      }
+    }
+    return undefined;
+  }
+
+  if (typeof value !== 'string') {
+    return undefined;
+  }
+
+  const trimmed = value.trim();
+  if (!trimmed || trimmed.toLowerCase() === 'all') {
+    return undefined;
+  }
+
+  return trimmed;
+}
+
+function parseFilterParams(query: express.Request['query']): SurveyFilterParams {
+  const filters: SurveyFilterParams = {};
+  const rawQuery = query as Record<string, unknown>;
+
+  for (const key of filterKeys) {
+    const value = normalizeQueryParam(rawQuery[key]);
+    if (value) {
+      filters[key] = value;
+    }
+  }
+
+  return filters;
+}
+
+function mergeSqlClauses(clauses: (SQL | undefined)[]): SQL | undefined {
+  const definedClauses = clauses.filter((clause): clause is SQL => Boolean(clause));
+  if (definedClauses.length === 0) {
+    return undefined;
+  }
+
+  return definedClauses.slice(1).reduce<SQL>((acc, clause) => sql`${acc} AND ${clause}`, definedClauses[0]);
+}
+
+function buildFilterWhereClause(filters: SurveyFilterParams): SQL | undefined {
+  const clauses: SQL[] = [];
+
+  for (const key of filterKeys) {
+    const value = filters[key];
+    if (!value) {
+      continue;
+    }
+
+    const column = filterColumnMap[key];
+    clauses.push(sql`${column} = ${value}`);
+  }
+
+  return mergeSqlClauses(clauses);
+}
+
+function buildCommentPresenceClause(): SQL {
+  let clause: SQL | undefined;
+
+  for (const field of openResponseFields) {
+    const condition = sql`COALESCE(${surveyResponses[field]}, '') <> ''`;
+    clause = clause ? sql`${clause} OR ${condition}` : condition;
+  }
+
+  return clause ?? sql`FALSE`;
+}
+
+async function fetchSectionStats(
+  questionKeys: QuestionKeyArray,
+  filters: SurveyFilterParams,
+): Promise<QuestionStats[]> {
+  const baseWhere = buildFilterWhereClause(filters);
+
+  return Promise.all(
+    questionKeys.map(async (questionKey) => {
+      const column = surveyResponses[questionKey];
+      const questionWhere = mergeSqlClauses([
+        baseWhere,
+        sql`${column} IS NOT NULL`,
+      ]);
+
+      let query = db
+        .select({
+          rating: sql<string>`${column}`,
+          count: count(),
+        })
+        .from(surveyResponses);
+
+      if (questionWhere) {
+        query = query.where(questionWhere);
+      }
+
+      const rows = await query
+        .groupBy(sql`${column}`)
+        .orderBy(sql`count DESC`);
+
+      const counts = rows.map((row) => ({
+        rating: row.rating,
+        count: Number(row.count),
+      }));
+      const total = counts.reduce((sum, current) => sum + current.count, 0);
+
+      return {
+        questionKey,
+        counts,
+        total,
+      } satisfies QuestionStats;
+    }),
+  );
+}
 
 // Middleware
 app.use(cors());
@@ -173,6 +368,93 @@ app.get('/api/analytics', async (req, res) => {
     });
   } catch (error) {
     console.error('Erro ao calcular analytics:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Erro interno do servidor',
+    });
+  }
+});
+
+app.get('/api/environment-stats', async (req, res) => {
+  try {
+    const filters = parseFilterParams(req.query);
+    const questions = await fetchSectionStats(environmentQuestionKeys, filters);
+
+    res.json({ filters, questions });
+  } catch (error) {
+    console.error('Erro ao buscar estatísticas do ambiente:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Erro interno do servidor',
+    });
+  }
+});
+
+app.get('/api/relationship-stats', async (req, res) => {
+  try {
+    const filters = parseFilterParams(req.query);
+    const questions = await fetchSectionStats(relationshipQuestionKeys, filters);
+
+    res.json({ filters, questions });
+  } catch (error) {
+    console.error('Erro ao buscar estatísticas de relacionamento:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Erro interno do servidor',
+    });
+  }
+});
+
+app.get('/api/motivation-stats', async (req, res) => {
+  try {
+    const filters = parseFilterParams(req.query);
+    const questions = await fetchSectionStats(motivationQuestionKeys, filters);
+
+    res.json({ filters, questions });
+  } catch (error) {
+    console.error('Erro ao buscar estatísticas de motivação:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Erro interno do servidor',
+    });
+  }
+});
+
+app.get('/api/comments', async (req, res) => {
+  try {
+    const filters = parseFilterParams(req.query);
+    const baseWhere = buildFilterWhereClause(filters);
+    const commentClause = buildCommentPresenceClause();
+    const commentsWhere = mergeSqlClauses([
+      baseWhere,
+      sql`(${commentClause})`,
+    ]);
+
+    const commentSelection = {} as Record<
+      (typeof openResponseFields)[number],
+      (typeof surveyResponses)[SurveyQuestionKey]
+    >;
+    for (const field of openResponseFields) {
+      commentSelection[field] = surveyResponses[field];
+    }
+
+    let query = db
+      .select({
+        setor_trabalho: surveyResponses.setor_trabalho,
+        ...commentSelection,
+      })
+      .from(surveyResponses);
+
+    if (commentsWhere) {
+      query = query.where(commentsWhere);
+    }
+
+    const comments = await query
+      .orderBy(sql`${surveyResponses.created_at} DESC`) as CommentRecord[];
+
+    res.json({ filters, comments });
+  } catch (error) {
+    console.error('Erro ao buscar comentários:', error);
     res.status(500).json({
       success: false,
       message: 'Erro interno do servidor',
