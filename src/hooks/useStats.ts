@@ -10,8 +10,8 @@ interface StatsData {
 }
 
 interface AnalyticsData {
-  satisfactionAverages: Record<string, number>;
-  totalResponses: Array<{ count: number }>;
+  satisfactionAverages: Record<string, number | null>;
+  lastUpdated: string;
 }
 
 export const useStats = () => {

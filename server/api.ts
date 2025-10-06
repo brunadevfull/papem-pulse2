@@ -139,33 +139,47 @@ app.get('/api/analytics', async (req, res) => {
     const satisfactionFields = [
       'materiais_fornecidos', 'materiais_adequados', 'atendimento_apoio',
       'limpeza_adequada', 'temperatura_adequada', 'iluminacao_adequada',
-      'rancho_instalacoes', 'rancho_qualidade', 'equipamentos_servico'
+      'alojamento_condicoes', 'banheiros_adequados', 'praca_darmas_adequada',
+      'rancho_instalacoes', 'rancho_qualidade',
+      'escala_atrapalha', 'equipamentos_servico', 'tfm_participa',
+      'tfm_incentivado', 'tfm_instalacoes', 'chefe_ouve_ideias',
+      'chefe_se_importa', 'contribuir_atividades', 'chefe_delega',
+      'pares_auxiliam', 'entrosamento_setores', 'entrosamento_tripulacao',
+      'convivio_agradavel', 'confianca_respeito', 'feedback_desempenho',
+      'conceito_compativel', 'importancia_atividade', 'trabalho_reconhecido',
+      'crescimento_estimulado', 'cursos_suficientes', 'programa_treinamento',
+      'orgulho_trabalhar', 'bem_aproveitado', 'potencial_outra_funcao',
+      'carga_trabalho_justa', 'licenca_autorizada'
     ];
 
-    const satisfactionAverages = {};
-    
-    for (const field of satisfactionFields) {
-      const ratings = await db
-        .select({
-          rating: sql`${surveyResponses[field]}`,
-          count: count(),
-        })
-        .from(surveyResponses)
-        .where(sql`${surveyResponses[field]} IS NOT NULL`)
-        .groupBy(sql`${surveyResponses[field]}`);
-        
-      if (ratings.length > 0) {
+    const satisfactionAveragesEntries = await Promise.all(
+      satisfactionFields.map(async (field) => {
+        const ratings = await db
+          .select({
+            rating: sql`${surveyResponses[field]}`,
+            count: count(),
+          })
+          .from(surveyResponses)
+          .where(sql`${surveyResponses[field]} IS NOT NULL`)
+          .groupBy(sql`${surveyResponses[field]}`);
+
+        if (ratings.length === 0) {
+          return [field, null];
+        }
+
         const weightedSum = ratings.reduce((sum, r) => {
           const value = ratingToNumber(r.rating);
           return sum + (value * r.count);
         }, 0);
-        
+
         const totalCount = ratings.reduce((sum, r) => sum + r.count, 0);
-        satisfactionAverages[field] = totalCount > 0 ? weightedSum / totalCount : null;
-      } else {
-        satisfactionAverages[field] = null;
-      }
-    }
+        const average = totalCount > 0 ? weightedSum / totalCount : null;
+
+        return [field, average];
+      })
+    );
+
+    const satisfactionAverages = Object.fromEntries(satisfactionAveragesEntries);
 
     res.json({
       satisfactionAverages,
@@ -606,16 +620,44 @@ function ratingToNumber(rating) {
 function getFriendlyFieldName(field) {
   const fieldNames = {
     'materiais_fornecidos': 'Materiais Fornecidos',
-    'materiais_adequados': 'Adequação dos Materiais', 
+    'materiais_adequados': 'Adequação dos Materiais',
     'atendimento_apoio': 'Atendimento e Apoio',
     'limpeza_adequada': 'Limpeza e Higiene',
     'temperatura_adequada': 'Temperatura Ambiente',
     'iluminacao_adequada': 'Iluminação Adequada',
+    'alojamento_condicoes': 'Condições do Alojamento',
+    'banheiros_adequados': 'Banheiros Adequados',
+    'praca_darmas_adequada': 'Praça d\'Armas Adequada',
     'rancho_instalacoes': 'Instalações do Rancho',
     'rancho_qualidade': 'Qualidade da Alimentação',
-    'equipamentos_servico': 'Equipamentos de Serviço'
+    'escala_atrapalha': 'Escala de Serviço',
+    'equipamentos_servico': 'Equipamentos de Serviço',
+    'tfm_participa': 'Participação no TFM',
+    'tfm_incentivado': 'Incentivo ao TFM',
+    'tfm_instalacoes': 'Instalações do TFM',
+    'chefe_ouve_ideias': 'Chefia Ouve Ideias',
+    'chefe_se_importa': 'Chefia se Importa',
+    'contribuir_atividades': 'Contribuição nas Atividades',
+    'chefe_delega': 'Delegação da Chefia',
+    'pares_auxiliam': 'Apoio dos Pares',
+    'entrosamento_setores': 'Entrosamento entre Setores',
+    'entrosamento_tripulacao': 'Entrosamento da Tripulação',
+    'convivio_agradavel': 'Convívio Agradável',
+    'confianca_respeito': 'Confiança e Respeito',
+    'feedback_desempenho': 'Feedback de Desempenho',
+    'conceito_compativel': 'Conceito Compatível',
+    'importancia_atividade': 'Importância da Atividade',
+    'trabalho_reconhecido': 'Trabalho Reconhecido',
+    'crescimento_estimulado': 'Crescimento Estimulado',
+    'cursos_suficientes': 'Cursos Suficientes',
+    'programa_treinamento': 'Programa de Treinamento',
+    'orgulho_trabalhar': 'Orgulho em Trabalhar',
+    'bem_aproveitado': 'Aproveitamento do Potencial',
+    'potencial_outra_funcao': 'Potencial em Outra Função',
+    'carga_trabalho_justa': 'Carga de Trabalho Justa',
+    'licenca_autorizada': 'Licença Autorizada'
   };
-  
+
   return fieldNames[field] || field;
 }
 
