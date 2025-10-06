@@ -1,19 +1,11 @@
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, PieChart, Pie, Cell } from "recharts";
-
-const relationshipQuestions = [
-  { id: "chefe_ouve_ideias", name: "Q21. Chefe Ouve Ideias", concordo: 55, neutro: 25, discordo: 20 },
-  { id: "chefe_se_importa", name: "Q22. Chefe Se Importa", concordo: 48, neutro: 32, discordo: 20 },
-  { id: "contribuir_atividades", name: "Q23. Contribuir Atividades", concordo: 72, neutro: 18, discordo: 10 },
-  { id: "chefe_delega", name: "Q24. Chefe Delega", concordo: 52, neutro: 28, discordo: 20 },
-  { id: "pares_auxiliam", name: "Q25. Pares Auxiliam", concordo: 68, neutro: 22, discordo: 10 },
-  { id: "entrosamento_setores", name: "Q26. Entrosamento Setores", concordo: 45, neutro: 35, discordo: 20 },
-  { id: "entrosamento_tripulacao", name: "Q27. Entrosamento Tripulação", concordo: 62, neutro: 25, discordo: 13 },
-  { id: "convivio_agradavel", name: "Q28. Convívio Agradável", concordo: 65, neutro: 22, discordo: 13 },
-  { id: "confianca_respeito", name: "Q29. Confiança e Respeito", concordo: 58, neutro: 27, discordo: 15 }
-];
+import { ResponsiveContainer, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Cell } from "recharts";
+import { AlertCircle, Loader2 } from "lucide-react";
+import { relationshipQuestions, type SectionStatsResponse } from "@shared/section-metadata";
+import { useSectionStats } from "@/hooks/useSectionStats";
+import { ratingToNumber, ratingToPercentage } from "@/hooks/useStats";
 
 const sectorOptions = [
   { value: "all", label: "Todos os setores" },
@@ -23,148 +15,134 @@ const sectorOptions = [
   { value: "PAPEM-40", label: "PAPEM-40" },
   { value: "PAPEM-51", label: "PAPEM-51" },
   { value: "PAPEM-52", label: "PAPEM-52" },
-  { value: "SECOM", label: "SECOM" }
+  { value: "SECOM", label: "SECOM" },
 ];
 
+const mapRatingToCategory = (rating: string) => {
+  const numeric = ratingToNumber(rating);
+  if (numeric >= 4) return "concordo";
+  if (numeric === 3) return "neutro";
+  return "discordo";
+};
 
 export function RelationshipCharts() {
   const [selectedSector, setSelectedSector] = useState("all");
+  const { data, loading, error } = useSectionStats("relationship", useMemo(() => ({
+    ...(selectedSector !== "all" ? { setor: selectedSector } : {}),
+  }), [selectedSector]));
 
-  // Filter data based on selected sector
-  const filteredData = selectedSector === "all" ? relationshipQuestions : 
-    relationshipQuestions.map(q => ({
-      ...q,
-      // Mock filtering - in real app, this would filter actual responses
-      concordo: Math.floor(Math.random() * 40) + 30,
-      neutro: Math.floor(Math.random() * 30) + 20,
-      discordo: Math.floor(Math.random() * 30) + 15
-    }));
+  const questionsById = useMemo(() => {
+    const map = new Map<string, SectionStatsResponse["questions"][number]>();
+    if (data) {
+      data.questions.forEach((question) => {
+        map.set(question.questionId as string, question);
+      });
+    }
+    return map;
+  }, [data]);
 
   return (
     <div className="space-y-6">
-      {/* Filter */}
-      <div className="flex items-center gap-4 mb-6">
+      <div className="flex items-center gap-4">
         <Select value={selectedSector} onValueChange={setSelectedSector}>
-          <SelectTrigger className="w-[200px] bg-background">
+          <SelectTrigger className="w-[220px] bg-background">
             <SelectValue placeholder="Filtrar por setor" />
           </SelectTrigger>
           <SelectContent className="bg-background border-border">
-            {sectorOptions.map((sector) => (
-              <SelectItem key={sector.value} value={sector.value}>
-                {sector.label}
+            {sectorOptions.map((option) => (
+              <SelectItem key={option.value} value={option.value}>
+                {option.label}
               </SelectItem>
             ))}
           </SelectContent>
         </Select>
-        <div className="text-sm text-muted-foreground">
-          {selectedSector === "all" ? "Mostrando todos os setores" : `Filtrado por: ${selectedSector}`}
-        </div>
+        {selectedSector !== "all" && (
+          <span className="text-sm text-muted-foreground">Filtrado por {selectedSector}</span>
+        )}
       </div>
 
-      {/* Visual Charts Grid */}
-      <div className="grid gap-6 lg:grid-cols-2 xl:grid-cols-3">
-        {filteredData.map((question, index) => {
+      {loading && (
+        <div className="flex items-center gap-2 text-sm text-muted-foreground">
+          <Loader2 className="h-4 w-4 animate-spin" /> Carregando dados de relacionamento...
+        </div>
+      )}
+
+      {error && (
+        <div className="flex items-center gap-2 rounded-lg border border-destructive/50 bg-destructive/10 p-4 text-sm text-destructive">
+          <AlertCircle className="h-4 w-4" />
+          {error}
+        </div>
+      )}
+
+      <div className="grid gap-6 xl:grid-cols-3 md:grid-cols-2">
+        {relationshipQuestions.map((question) => {
+          const stats = questionsById.get(question.id as string);
+          const totalResponses = stats?.totalResponses ?? 0;
+
+          if (!stats && !loading) {
+            return null;
+          }
+
+          const percentages = ratingToPercentage(stats?.ratings ?? []);
+          const counts = { concordo: 0, neutro: 0, discordo: 0 };
+          stats?.ratings.forEach((entry) => {
+            const category = mapRatingToCategory(entry.rating);
+            counts[category as keyof typeof counts] += entry.count;
+          });
+
           const chartData = [
-            { name: "Concordo", value: question.concordo, fill: "hsl(var(--success))" },
-            { name: "Neutro", value: question.neutro, fill: "hsl(var(--warning))" },
-            { name: "Discordo", value: question.discordo, fill: "hsl(var(--destructive))" }
+            { category: "Concordo", percentage: percentages.concordo, count: counts.concordo, fill: "hsl(var(--success))" },
+            { category: "Neutro", percentage: percentages.neutro, count: counts.neutro, fill: "hsl(var(--warning))" },
+            { category: "Discordo", percentage: percentages.discordo, count: counts.discordo, fill: "hsl(var(--destructive))" },
           ];
 
-          const barData = [
-            { category: "Concordo", percentage: question.concordo, fill: "hsl(var(--success))" },
-            { category: "Neutro", percentage: question.neutro, fill: "hsl(var(--warning))" },
-            { category: "Discordo", percentage: question.discordo, fill: "hsl(var(--destructive))" }
-          ];
-
+          const averageScore = stats?.average ? Math.round(stats.average * 20) : null;
 
           return (
-            <Card 
-              key={question.id} 
-              className="group hover:shadow-xl transition-all duration-300 hover:scale-[1.02] bg-gradient-to-br from-background to-muted/20 border-2 hover:border-primary/20 animate-fade-in"
-              style={{ animationDelay: `${index * 100}ms` }}
-            >
-              <CardHeader className="pb-4">
-                <CardTitle className="text-sm font-semibold leading-tight text-foreground group-hover:text-primary transition-colors">
-                  {question.name}
-                </CardTitle>
+            <Card key={question.id} className="h-full">
+              <CardHeader className="pb-3">
+                <CardTitle className="text-base font-semibold">{question.label}</CardTitle>
+                <CardDescription>
+                  {totalResponses > 0
+                    ? `${totalResponses} respostas registradas`
+                    : "Sem respostas registradas"}
+                </CardDescription>
               </CardHeader>
-              
               <CardContent className="space-y-4">
-                {/* Pie Chart */}
-                <div className="flex items-center justify-center">
-                  <ResponsiveContainer width="100%" height={180}>
-                    <PieChart>
-                      <Pie
-                        data={chartData}
-                        cx="50%"
-                        cy="50%"
-                        innerRadius={35}
-                        outerRadius={65}
-                        paddingAngle={3}
-                        dataKey="value"
-                        animationBegin={index * 200}
-                        animationDuration={1000}
-                      >
-                        {chartData.map((entry, index) => (
-                          <Cell key={`cell-${index}`} fill={entry.fill} />
-                        ))}
-                      </Pie>
-                      <Tooltip 
-                        contentStyle={{
-                          background: 'hsl(var(--background))',
-                          border: '1px solid hsl(var(--border))',
-                          borderRadius: '8px',
-                          boxShadow: '0 4px 12px rgba(0,0,0,0.1)'
-                        }}
-                        formatter={(value) => [`${value}%`, '']}
-                      />
-                    </PieChart>
-                  </ResponsiveContainer>
-                </div>
+                <ResponsiveContainer width="100%" height={200}>
+                  <BarChart data={chartData}>
+                    <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" opacity={0.2} />
+                    <XAxis dataKey="category" tick={{ fontSize: 12 }} />
+                    <YAxis tickFormatter={(value) => `${value}%`} width={40} />
+                    <Tooltip
+                      formatter={(value: number, _name, props) => [
+                        `${value}% (${props.payload.count} respostas)`,
+                        props.payload.category,
+                      ]}
+                      contentStyle={{ background: "hsl(var(--background))", border: "1px solid hsl(var(--border))" }}
+                    />
+                    <Bar dataKey="percentage" radius={[6, 6, 0, 0]}>
+                      {chartData.map((entry) => (
+                        <Cell key={`${question.id}-${entry.category}`} fill={entry.fill} />
+                      ))}
+                    </Bar>
+                  </BarChart>
+                </ResponsiveContainer>
 
-                {/* Bar Chart */}
-                <div className="space-y-3">
-                  <ResponsiveContainer width="100%" height={120}>
-                    <BarChart data={barData} margin={{ top: 5, right: 5, left: 5, bottom: 5 }}>
-                      <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" opacity={0.3} />
-                      <XAxis 
-                        dataKey="category" 
-                        axisLine={false}
-                        tickLine={false}
-                        tick={{ fontSize: 10, fill: 'hsl(var(--muted-foreground))' }}
-                      />
-                      <YAxis hide />
-                      <Tooltip 
-                        contentStyle={{
-                          background: 'hsl(var(--background))',
-                          border: '1px solid hsl(var(--border))',
-                          borderRadius: '6px'
-                        }}
-                        formatter={(value) => [`${value}%`, 'Percentual']}
-                      />
-                      <Bar 
-                        dataKey="percentage" 
-                        radius={[4, 4, 0, 0]}
-                        animationDuration={1200}
-                        animationBegin={index * 150}
-                      />
-                    </BarChart>
-                  </ResponsiveContainer>
-                </div>
-
-                {/* Statistics Summary */}
-                <div className="grid grid-cols-3 gap-2 pt-2 border-t border-border/50">
-                  {[
-                    { label: "Positivo", value: question.concordo, color: "text-success", bg: "bg-success/10" },
-                    { label: "Neutro", value: question.neutro, color: "text-warning", bg: "bg-warning/10" },
-                    { label: "Negativo", value: question.discordo, color: "text-destructive", bg: "bg-destructive/10" }
-                  ].map((stat, idx) => (
-                    <div key={idx} className={`${stat.bg} rounded-lg p-2 text-center transition-all hover:scale-105`}>
-                      <div className={`text-sm font-bold ${stat.color}`}>{stat.value}%</div>
-                      <div className="text-xs text-muted-foreground">{stat.label}</div>
-                    </div>
+                <div className="flex flex-wrap gap-2 text-xs text-muted-foreground">
+                  {chartData.map((entry) => (
+                    <span key={entry.category} className="flex items-center gap-2 rounded-full border px-3 py-1">
+                      <span className="h-2 w-2 rounded-full" style={{ backgroundColor: entry.fill }} />
+                      {entry.category}: {entry.percentage}%
+                    </span>
                   ))}
                 </div>
+
+                {averageScore !== null && (
+                  <div className="text-sm text-muted-foreground">
+                    Média ponderada: <span className="font-medium text-foreground">{averageScore}%</span>
+                  </div>
+                )}
               </CardContent>
             </Card>
           );

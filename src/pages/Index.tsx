@@ -1,10 +1,39 @@
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { ClipboardList, BarChart3, Shield, Users, Target, ArrowRight, Sparkles, Zap, TrendingUp, Award } from "lucide-react";
+import { ClipboardList, BarChart3, Shield, Users, Target, ArrowRight, Sparkles, TrendingUp, Award } from "lucide-react";
 import { useNavigate } from "react-router-dom";
+import { useMemo } from "react";
+import { useStats } from "@/hooks/useStats";
 
 const Index = () => {
   const navigate = useNavigate();
+
+  const { stats: statsData, analytics, loading: statsLoading, error: statsError } = useStats();
+
+  const satisfactionAverage = useMemo(() => {
+    if (!analytics?.satisfactionAverages) {
+      return null;
+    }
+
+    const values = Object.values(analytics.satisfactionAverages).filter((value): value is number => typeof value === "number");
+    if (values.length === 0) {
+      return null;
+    }
+
+    const average = values.reduce((sum, value) => sum + value, 0) / values.length;
+    return Math.round(average * 20);
+  }, [analytics]);
+
+  const totalResponses = statsData?.totalResponses ?? 0;
+  const mostActiveSector = statsData?.setorDistribution?.[0]?.setor ?? "-";
+  const ranchoCount = statsData?.ranchoDistribution?.length ?? 0;
+
+  const heroStats = [
+    { icon: Users, value: statsLoading ? "..." : totalResponses.toString(), label: "Respostas coletadas", color: "text-success" },
+    { icon: TrendingUp, value: statsLoading ? "..." : satisfactionAverage !== null ? `${satisfactionAverage}%` : "-", label: "Satisfação geral", color: "text-primary" },
+    { icon: Target, value: statsLoading ? "..." : mostActiveSector, label: "Setor mais ativo", color: "text-warning" },
+    { icon: Award, value: statsLoading ? "..." : `${ranchoCount}`, label: "Ranchos monitorados", color: "text-accent" }
+  ];
 
   const features = [
     {
@@ -31,13 +60,6 @@ const Index = () => {
       bgColor: "bg-accent/10",
       borderColor: "border-accent/20"
     }
-  ];
-
-  const stats = [
-    { icon: Users, value: "100%", label: "Anônimo", color: "text-success" },
-    { icon: Zap, value: "15min", label: "Tempo Médio", color: "text-warning" },
-    { icon: TrendingUp, value: "3", label: "Seções", color: "text-primary" },
-    { icon: Award, value: "42", label: "Perguntas", color: "text-accent" }
   ];
 
   return (
@@ -76,7 +98,7 @@ const Index = () => {
           
           {/* Stats Row */}
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
-            {stats.map((stat, index) => {
+            {heroStats.map((stat, index) => {
               const IconComponent = stat.icon;
               return (
                 <div key={index} className="bg-white/10 backdrop-blur-sm rounded-2xl p-4 border border-white/20 text-center animate-scale-in" style={{ animationDelay: `${index * 0.1}s` }}>
@@ -87,6 +109,12 @@ const Index = () => {
               );
             })}
           </div>
+
+          {statsError && (
+            <div className="text-sm text-primary-foreground/70 bg-white/10 border border-white/20 rounded-2xl px-4 py-2">
+              Não foi possível atualizar as métricas em tempo real: {statsError}
+            </div>
+          )}
           
           <div className="flex flex-col sm:flex-row gap-4">
             <Button 
