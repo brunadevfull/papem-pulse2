@@ -184,58 +184,55 @@ export function generateOverallSatisfactionHtml(overallSatisfaction: number): st
 }
 
 // Generate trend chart (simple line chart)
-export function generateTrendChartHtml(): string {
-  const months = ['Jan', 'Fev', 'Mar', 'Abr', 'Mai', 'Jun'];
-  const responses = [45, 52, 48, 61, 58, 65];
-  const maxValue = Math.max(...responses);
-  
-  const points = responses.map((value, index) => {
-    const x = 50 + (index * 50);
-    const y = 250 - ((value / maxValue) * 180);
-    return { x, y, value, month: months[index] };
-  }).join(' ');
+export function generateTrendChartHtml(timeline: Array<{ label: string; count: number }>): string {
+  if (!timeline || timeline.length === 0) {
+    return `
+      <div class="chart-container">
+        <h3>Evolução de Participação</h3>
+        <p>Sem registros suficientes para exibir a evolução de participação.</p>
+      </div>
+    `;
+  }
 
-  const pathData = responses.map((value, index) => {
-    const x = 50 + (index * 50);
-    const y = 250 - ((value / maxValue) * 180);
-    return index === 0 ? `M ${x},${y}` : `L ${x},${y}`;
-  }).join(' ');
+  const counts = timeline.map((item) => item.count);
+  const maxValue = Math.max(...counts, 1);
+  const step = timeline.length > 1 ? 250 / (timeline.length - 1) : 0;
+
+  const points = timeline.map((item, index) => {
+    const x = 50 + (index * step);
+    const y = 250 - ((item.count / maxValue) * 180);
+    return { x, y, value: item.count, label: item.label || `Mês ${index + 1}` };
+  });
+
+  const pathData = points
+    .map((point, index) => (index === 0 ? `M ${point.x},${point.y}` : `L ${point.x},${point.y}`))
+    .join(' ');
 
   return `
     <div class="chart-container">
       <h3>Evolução de Participação</h3>
       <div class="line-chart">
         <svg width="350" height="300" viewBox="0 0 350 300">
-          <!-- Grid lines -->
           <defs>
             <pattern id="grid" width="50" height="30" patternUnits="userSpaceOnUse">
               <path d="M 50 0 L 0 0 0 30" fill="none" stroke="#e5e7eb" stroke-width="1"/>
             </pattern>
           </defs>
           <rect width="300" height="200" x="50" y="50" fill="url(#grid)"/>
-          
-          <!-- Line -->
+
           <path d="${pathData}" fill="none" stroke="#3b82f6" stroke-width="3"/>
-          
-          <!-- Points -->
-          ${responses.map((value, index) => {
-            const x = 50 + (index * 50);
-            const y = 250 - ((value / maxValue) * 180);
-            return `<circle cx="${x}" cy="${y}" r="4" fill="#1d4ed8"/>`;
-          }).join('')}
-          
-          <!-- Labels -->
-          ${months.map((month, index) => {
-            const x = 50 + (index * 50);
-            return `<text x="${x}" y="275" text-anchor="middle" font-size="12" fill="#6b7280">${month}</text>`;
-          }).join('')}
-          
-          <!-- Values -->
-          ${responses.map((value, index) => {
-            const x = 50 + (index * 50);
-            const y = 250 - ((value / maxValue) * 180) - 15;
-            return `<text x="${x}" y="${y}" text-anchor="middle" font-size="11" fill="#374151">${value}</text>`;
-          }).join('')}
+
+          ${points.map((point) => `
+            <circle cx="${point.x}" cy="${point.y}" r="4" fill="#1d4ed8"/>
+          `).join('')}
+
+          ${points.map((point) => `
+            <text x="${point.x}" y="275" text-anchor="middle" font-size="12" fill="#6b7280">${point.label}</text>
+          `).join('')}
+
+          ${points.map((point) => `
+            <text x="${point.x}" y="${point.y - 15}" text-anchor="middle" font-size="11" fill="#374151">${point.value}</text>
+          `).join('')}
         </svg>
       </div>
     </div>
@@ -248,6 +245,7 @@ export function generateAllChartsHtml(data: {
   ranchoDistribution: any[];
   satisfactionAverages: Record<string, number>;
   overallSatisfaction: number;
+  timeline: Array<{ label: string; count: number }>;
 }): string {
   return `
     <style>
@@ -351,7 +349,7 @@ export function generateAllChartsHtml(data: {
       ${generateOverallSatisfactionHtml(data.overallSatisfaction)}
       ${generateRanchoChartHtml(data.ranchoDistribution)}
       ${generateSatisfactionChartHtml(data.satisfactionAverages)}
-      ${generateTrendChartHtml()}
+      ${generateTrendChartHtml(data.timeline)}
     </div>
   `;
 }

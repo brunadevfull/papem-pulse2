@@ -1,53 +1,11 @@
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Badge } from "@/components/ui/badge";
-import { MessageSquare, ThumbsUp, ThumbsDown, Lightbulb, Heart } from "lucide-react";
+import { MessageSquare, ThumbsUp, ThumbsDown, Lightbulb, Heart, AlertCircle, Loader2 } from "lucide-react";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Separator } from "@/components/ui/separator";
-
-const mockOpenAnswers = [
-  {
-    id: 1,
-    setor: "PAPEM-10",
-    aspecto_positivo: "A equipe é muito unida e sempre se ajudam mutuamente. O ambiente de camaradagem é excelente.",
-    aspecto_negativo: "A falta de equipamentos adequados dificulta algumas atividades do dia a dia.",
-    proposta_processo: "Seria interessante implementar um sistema digital para controle de materiais.",
-    proposta_satisfacao: "Mais atividades de confraternização e reconhecimento pelos trabalhos realizados."
-  },
-  {
-    id: 2,
-    setor: "PAPEM-20",
-    aspecto_positivo: "A liderança é respeitosa e sempre aberta ao diálogo.",
-    aspecto_negativo: "Os horários das escalas poderiam ser melhor distribuídos.",
-    proposta_processo: "Automatizar alguns processos administrativos que ainda são manuais.",
-    proposta_satisfacao: "Criar um programa de capacitação contínua para os militares."
-  },
-  {
-    id: 3,
-    setor: "PAPEM-30",
-    aspecto_positivo: "Excelente estrutura física e bom ambiente de trabalho.",
-    aspecto_negativo: "Comunicação entre setores poderia ser mais eficiente.",
-    proposta_processo: "Implementar reuniões semanais entre chefes de setor.",
-    proposta_satisfacao: "Estabelecer metas claras e sistema de premiação por desempenho."
-  },
-  {
-    id: 4,
-    setor: "PAPEM-40",
-    aspecto_positivo: "Boa comunicação interna e transparência nas decisões.",
-    aspecto_negativo: "Falta de material de escritório e equipamentos básicos.",
-    proposta_processo: "Melhorar o processo de solicitação de materiais.",
-    proposta_satisfacao: "Promover mais eventos de integração entre as equipes."
-  },
-  {
-    id: 5,
-    setor: "SECOM",
-    aspecto_positivo: "Ambiente colaborativo e apoio mútuo entre colegas.",
-    aspecto_negativo: "Necessidade de melhor infraestrutura de TI.",
-    proposta_processo: "Digitalizar processos de comunicação interna.",
-    proposta_satisfacao: "Implementar programa de reconhecimento por mérito."
-  }
-];
+import { useOpenComments } from "@/hooks/useOpenComments";
 
 const sectorOptions = [
   { value: "all", label: "Todos os setores" },
@@ -57,54 +15,69 @@ const sectorOptions = [
   { value: "PAPEM-40", label: "PAPEM-40" },
   { value: "PAPEM-51", label: "PAPEM-51" },
   { value: "PAPEM-52", label: "PAPEM-52" },
-  { value: "SECOM", label: "SECOM" }
+  { value: "SECOM", label: "SECOM" },
+];
+
+const categories = [
+  {
+    title: "Aspectos Positivos",
+    icon: ThumbsUp,
+    color: "text-success",
+    bgColor: "bg-success/10",
+    borderColor: "border-success/20",
+    field: "aspecto_positivo" as const,
+    emptyMessage: "Nenhum aspecto positivo registrado.",
+  },
+  {
+    title: "Aspectos Negativos",
+    icon: ThumbsDown,
+    color: "text-destructive",
+    bgColor: "bg-destructive/10",
+    borderColor: "border-destructive/20",
+    field: "aspecto_negativo" as const,
+    emptyMessage: "Nenhum ponto crítico foi reportado.",
+  },
+  {
+    title: "Propostas de Processos",
+    icon: Lightbulb,
+    color: "text-warning",
+    bgColor: "bg-warning/10",
+    borderColor: "border-warning/20",
+    field: "proposta_processo" as const,
+    emptyMessage: "Nenhuma sugestão de processo informada.",
+  },
+  {
+    title: "Propostas de Satisfação",
+    icon: Heart,
+    color: "text-accent",
+    bgColor: "bg-accent/10",
+    borderColor: "border-accent/20",
+    field: "proposta_satisfacao" as const,
+    emptyMessage: "Nenhuma proposta de satisfação registrada.",
+  },
 ];
 
 export function OpenAnswersSection() {
   const [selectedSector, setSelectedSector] = useState("all");
+  const filters = useMemo(() => (
+    selectedSector !== "all" ? { setor: selectedSector } : {}
+  ), [selectedSector]);
 
-  // Filter answers based on selected sector
-  const filteredAnswers = selectedSector === "all" ? mockOpenAnswers : 
-    mockOpenAnswers.filter(answer => answer.setor === selectedSector);
+  const { comments, loading, error } = useOpenComments(filters);
 
-  const categories = [
-    {
-      title: "Aspectos Positivos",
-      icon: ThumbsUp,
-      color: "text-success",
-      bgColor: "bg-success/10",
-      borderColor: "border-success/20",
-      field: "aspecto_positivo"
-    },
-    {
-      title: "Aspectos Negativos",
-      icon: ThumbsDown,
-      color: "text-destructive",
-      bgColor: "bg-destructive/10", 
-      borderColor: "border-destructive/20",
-      field: "aspecto_negativo"
-    },
-    {
-      title: "Propostas de Processos",
-      icon: Lightbulb,
-      color: "text-warning",
-      bgColor: "bg-warning/10",
-      borderColor: "border-warning/20", 
-      field: "proposta_processo"
-    },
-    {
-      title: "Propostas de Satisfação",
-      icon: Heart,
-      color: "text-accent",
-      bgColor: "bg-accent/10",
-      borderColor: "border-accent/20",
-      field: "proposta_satisfacao"
-    }
-  ];
+  const formatDate = (value: string | null) => {
+    if (!value) return "";
+    const date = new Date(value);
+    if (Number.isNaN(date.getTime())) return "";
+    return date.toLocaleDateString("pt-BR", {
+      day: "2-digit",
+      month: "short",
+      year: "numeric",
+    });
+  };
 
   return (
     <div className="space-y-6">
-      {/* Filter */}
       <div className="flex items-center gap-4 mb-6">
         <Select value={selectedSector} onValueChange={setSelectedSector}>
           <SelectTrigger className="w-[200px] bg-background">
@@ -123,16 +96,35 @@ export function OpenAnswersSection() {
         </div>
       </div>
 
+      {loading && (
+        <div className="flex items-center gap-2 text-sm text-muted-foreground">
+          <Loader2 className="h-4 w-4 animate-spin" /> Carregando comentários...
+        </div>
+      )}
+
+      {error && (
+        <div className="flex items-center gap-2 rounded-lg border border-destructive/50 bg-destructive/10 p-4 text-sm text-destructive">
+          <AlertCircle className="h-4 w-4" />
+          {error}
+        </div>
+      )}
+
       <div className="text-center space-y-2 mb-8">
         <h3 className="text-2xl font-bold text-foreground">Respostas Abertas</h3>
         <p className="text-muted-foreground">
-          Análise qualitativa das sugestões e comentários da tripulação ({filteredAnswers.length} respostas{selectedSector !== "all" ? ` - ${selectedSector}` : ""})
+          {comments.length > 0
+            ? `Exibindo ${comments.length} registros qualitativos`
+            : "Nenhuma resposta aberta encontrada para os filtros selecionados."}
         </p>
       </div>
 
       {categories.map((category) => {
         const Icon = category.icon;
-        
+        const entries = comments.filter((comment) => {
+          const content = comment[category.field];
+          return content && content.trim().length > 0;
+        });
+
         return (
           <Card key={category.field} className="survey-card">
             <CardHeader className={`${category.bgColor} ${category.borderColor} border-b`}>
@@ -140,31 +132,39 @@ export function OpenAnswersSection() {
                 <Icon className={`w-6 h-6 ${category.color}`} />
                 {category.title}
                 <Badge variant="secondary" className="ml-auto">
-                  {filteredAnswers.length} respostas
+                  {entries.length} respostas
                 </Badge>
               </CardTitle>
               <CardDescription>
-                Comentários e sugestões sobre {category.title.toLowerCase()}
+                {`Comentários relacionados a ${category.title.toLowerCase()}.`}
               </CardDescription>
             </CardHeader>
             <CardContent className="p-0">
               <ScrollArea className="h-[300px]">
                 <div className="p-6 space-y-4">
-                  {filteredAnswers.map((answer, index) => (
-                    <div key={answer.id}>
+                  {entries.length === 0 && (
+                    <p className="text-sm text-muted-foreground">{category.emptyMessage}</p>
+                  )}
+                  {entries.map((answer, index) => (
+                    <div key={`${answer.id}-${category.field}`}>
                       <div className="space-y-2">
-                        <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                        <div className="flex items-center gap-2 text-sm text-muted-foreground flex-wrap">
                           <MessageSquare className="w-4 h-4" />
                           <span>Resposta #{answer.id}</span>
-                          <Badge variant="outline" className="text-xs">
-                            {answer.setor}
-                          </Badge>
+                          {answer.setor_trabalho && (
+                            <Badge variant="outline" className="text-xs">
+                              {answer.setor_trabalho}
+                            </Badge>
+                          )}
+                          {answer.created_at && (
+                            <span className="text-xs">{formatDate(answer.created_at)}</span>
+                          )}
                         </div>
-                        <p className="text-sm leading-relaxed text-foreground bg-muted/30 p-4 rounded-lg">
-                          {answer[category.field as keyof typeof answer]}
+                        <p className="text-sm leading-relaxed text-foreground bg-muted/30 p-4 rounded-lg whitespace-pre-line">
+                          {answer[category.field]}
                         </p>
                       </div>
-                      {index < filteredAnswers.length - 1 && <Separator className="mt-4" />}
+                      {index < entries.length - 1 && <Separator className="mt-4" />}
                     </div>
                   ))}
                 </div>
@@ -173,7 +173,6 @@ export function OpenAnswersSection() {
           </Card>
         );
       })}
-
     </div>
   );
 }

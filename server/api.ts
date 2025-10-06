@@ -2,9 +2,17 @@ import express from 'express';
 import cors from 'cors';
 import { db } from './db';
 import { surveyResponses, surveyStats } from '@shared/schema';
-import { eq, count, sql } from 'drizzle-orm';
+import { eq, count, sql, and } from 'drizzle-orm';
 import { generateAllChartsHtml } from './simpleCharts';
 import { generatePdfTemplate } from './pdfTemplate';
+import {
+  sectionQuestions,
+  type SectionKey,
+  type SectionQuestion,
+  type SectionStatsResponse,
+  type QuestionStats,
+  type CommentRecord,
+} from '@shared/section-metadata';
 
 const app = express();
 const PORT = process.env.PORT || 3001;
@@ -12,6 +20,177 @@ const PORT = process.env.PORT || 3001;
 // Middleware
 app.use(cors());
 app.use(express.json());
+
+type FilterParams = {
+  setor?: string;
+  alojamento?: string;
+  rancho?: string;
+  escala?: string;
+};
+
+function normalizeFilter(value: unknown): string | undefined {
+  if (!value) return undefined;
+  const raw = Array.isArray(value) ? value[0] : value;
+  if (typeof raw !== 'string') return undefined;
+  const trimmed = raw.trim();
+  if (!trimmed || trimmed.toLowerCase() === 'all') {
+    return undefined;
+  }
+  return trimmed;
+}
+
+function extractFilters(query: Record<string, unknown>): FilterParams {
+  return {
+    setor: normalizeFilter(query.setor),
+    alojamento: normalizeFilter(query.alojamento),
+    rancho: normalizeFilter(query.rancho),
+    escala: normalizeFilter(query.escala),
+  };
+}
+
+function buildWhereClause(filters: FilterParams) {
+  const conditions: any[] = [];
+
+  if (filters.setor) {
+    conditions.push(eq(surveyResponses.setor_trabalho, filters.setor));
+  }
+  if (filters.alojamento) {
+    conditions.push(eq(surveyResponses.localizacao_alojamento, filters.alojamento));
+  }
+  if (filters.rancho) {
+    conditions.push(eq(surveyResponses.localizacao_rancho, filters.rancho));
+  }
+  if (filters.escala) {
+    conditions.push(eq(surveyResponses.escala_servico, filters.escala));
+  }
+
+  if (conditions.length === 0) {
+    return undefined;
+  }
+
+  if (conditions.length === 1) {
+    return conditions[0];
+  }
+
+  return and(...conditions);
+}
+
+async function getQuestionStats(question: SectionQuestion, filters: FilterParams): Promise<QuestionStats> {
+  const column = surveyResponses[question.id as keyof typeof surveyResponses] as any;
+  const filterClause = buildWhereClause(filters);
+
+  let query = db
+    .select({
+      rating: column,
+      count: count(),
+    })
+    .from(surveyResponses);
+
+  if (filterClause) {
+    query = query.where(filterClause);
+  }
+
+  const grouped = await query
+    .groupBy(column)
+    .orderBy(sql`count DESC`);
+
+  const formattedRatings = grouped
+    .filter((row) => row.rating !== null && row.rating !== '')
+    .map((row) => ({
+      rating: String(row.rating),
+      count: Number(row.count),
+    }));
+
+  const totalResponses = formattedRatings.reduce((sum, item) => sum + item.count, 0);
+
+  const average = question.type === 'likert' && totalResponses > 0
+    ? formattedRatings.reduce((sum, item) => sum + ratingToNumber(item.rating) * item.count, 0) / totalResponses
+    : null;
+
+  return {
+    questionId: question.id,
+    label: question.label,
+    type: question.type,
+    ratings: formattedRatings,
+    totalResponses,
+    average,
+  };
+}
+
+async function getSectionStats(section: SectionKey, filters: FilterParams): Promise<SectionStatsResponse> {
+  const questions = await Promise.all(
+    sectionQuestions[section].map((question) => getQuestionStats(question, filters))
+  );
+
+  const totalResponses = questions.reduce(
+    (max, question) => Math.max(max, question.totalResponses),
+    0
+  );
+
+  return {
+    section,
+    questions,
+    totalResponses,
+  };
+}
+
+async function getComments(filters: FilterParams): Promise<CommentRecord[]> {
+  const filterClause = buildWhereClause(filters);
+
+  let query = db
+    .select({
+      id: surveyResponses.id,
+      setor_trabalho: surveyResponses.setor_trabalho,
+      aspecto_positivo: surveyResponses.aspecto_positivo,
+      aspecto_negativo: surveyResponses.aspecto_negativo,
+      proposta_processo: surveyResponses.proposta_processo,
+      proposta_satisfacao: surveyResponses.proposta_satisfacao,
+      created_at: surveyResponses.created_at,
+    })
+    .from(surveyResponses);
+
+  if (filterClause) {
+    query = query.where(filterClause);
+  }
+
+  const rows = await query
+    .orderBy(sql`${surveyResponses.created_at} DESC`);
+
+  return rows
+    .filter((row) =>
+      row.aspecto_positivo ||
+      row.aspecto_negativo ||
+      row.proposta_processo ||
+      row.proposta_satisfacao
+    )
+    .map((row) => ({
+      ...row,
+      created_at: row.created_at ? row.created_at.toISOString() : null,
+    }));
+}
+
+async function fetchSubmissionTimeline() {
+  const rows = await db
+    .select({
+      month: sql`DATE_TRUNC('month', ${surveyResponses.created_at})`,
+      count: count(),
+    })
+    .from(surveyResponses)
+    .groupBy(sql`DATE_TRUNC('month', ${surveyResponses.created_at})`)
+    .orderBy(sql`DATE_TRUNC('month', ${surveyResponses.created_at})`);
+
+  return rows.map((row) => {
+    const monthDate = row.month instanceof Date ? row.month : new Date(row.month as string);
+    const label = Number.isNaN(monthDate.getTime())
+      ? ''
+      : monthDate.toLocaleDateString('pt-BR', { month: 'short', year: 'numeric' });
+
+    return {
+      label,
+      count: Number(row.count),
+    };
+  });
+}
 
 // Health check endpoint
 app.get('/api/health', (req, res) => {
@@ -45,6 +224,63 @@ app.post('/api/survey', async (req, res) => {
     });
   } catch (error) {
     console.error('Erro ao salvar pesquisa:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Erro interno do servidor',
+    });
+  }
+});
+
+// Section statistics endpoints
+app.get('/api/environment-stats', async (req, res) => {
+  try {
+    const filters = extractFilters(req.query as Record<string, unknown>);
+    const data = await getSectionStats('environment', filters);
+    res.json(data);
+  } catch (error) {
+    console.error('Erro ao buscar estatísticas de ambiente:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Erro interno do servidor',
+    });
+  }
+});
+
+app.get('/api/relationship-stats', async (req, res) => {
+  try {
+    const filters = extractFilters(req.query as Record<string, unknown>);
+    const data = await getSectionStats('relationship', filters);
+    res.json(data);
+  } catch (error) {
+    console.error('Erro ao buscar estatísticas de relacionamento:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Erro interno do servidor',
+    });
+  }
+});
+
+app.get('/api/motivation-stats', async (req, res) => {
+  try {
+    const filters = extractFilters(req.query as Record<string, unknown>);
+    const data = await getSectionStats('motivation', filters);
+    res.json(data);
+  } catch (error) {
+    console.error('Erro ao buscar estatísticas de motivação:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Erro interno do servidor',
+    });
+  }
+});
+
+app.get('/api/comments', async (req, res) => {
+  try {
+    const filters = extractFilters(req.query as Record<string, unknown>);
+    const comments = await getComments(filters);
+    res.json({ comments });
+  } catch (error) {
+    console.error('Erro ao buscar comentários:', error);
     res.status(500).json({
       success: false,
       message: 'Erro interno do servidor',
@@ -185,13 +421,14 @@ app.get('/api/export/pdf', async (req, res) => {
   try {
     // Fetch data for report
     const reportData = await fetchReportData();
-    
+
     // Generate charts HTML
     const chartsHtml = generateAllChartsHtml({
       sectorDistribution: reportData.stats.setorDistribution,
       ranchoDistribution: reportData.stats.ranchoDistribution,
       satisfactionAverages: reportData.analytics.satisfactionAverages,
-      overallSatisfaction: reportData.generalSatisfaction
+      overallSatisfaction: reportData.generalSatisfaction,
+      timeline: reportData.timeline,
     });
 
     // Generate HTML with embedded charts - optimized for PDF conversion
@@ -219,7 +456,7 @@ app.get('/api/export/pdf', async (req, res) => {
 async function fetchReportData() {
   // Fetch data
   const [totalCount] = await db.select({ count: count() }).from(surveyResponses);
-  
+
   const setorStats = await db
     .select({
       setor: surveyResponses.setor_trabalho,
@@ -287,6 +524,8 @@ async function fetchReportData() {
     weekday: 'long'
   });
 
+  const timeline = await fetchSubmissionTimeline();
+
   return {
     stats: {
       totalResponses: totalCount.count,
@@ -295,7 +534,8 @@ async function fetchReportData() {
     },
     analytics: { satisfactionAverages },
     generalSatisfaction,
-    generatedAt
+    generatedAt,
+    timeline,
   };
 }
 
