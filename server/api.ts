@@ -191,7 +191,8 @@ app.get('/api/export/pdf', async (req, res) => {
       sectorDistribution: reportData.stats.setorDistribution,
       ranchoDistribution: reportData.stats.ranchoDistribution,
       satisfactionAverages: reportData.analytics.satisfactionAverages,
-      overallSatisfaction: reportData.generalSatisfaction
+      overallSatisfaction: reportData.generalSatisfaction,
+      participationTimeline: reportData.participationTimeline
     });
 
     // Generate HTML with embedded charts - optimized for PDF conversion
@@ -272,9 +273,34 @@ async function fetchReportData() {
 
   // Calculate general satisfaction
   const satisfactionValues = Object.values(satisfactionAverages).filter(v => v !== null) as number[];
-  const generalSatisfaction = satisfactionValues.length > 0 
+  const generalSatisfaction = satisfactionValues.length > 0
     ? satisfactionValues.reduce((sum, val) => sum + val, 0) / satisfactionValues.length * 20
     : 0;
+
+  // Build participation timeline grouped by month
+  const timelineRaw = await db
+    .select({
+      monthStart: sql<Date>`DATE_TRUNC('month', ${surveyResponses.created_at})`,
+      count: count(),
+    })
+    .from(surveyResponses)
+    .groupBy(sql`DATE_TRUNC('month', ${surveyResponses.created_at})`)
+    .orderBy(sql`DATE_TRUNC('month', ${surveyResponses.created_at})`);
+
+  const monthFormatter = new Intl.DateTimeFormat('pt-BR', { month: 'short' });
+  const participationTimeline = timelineRaw.map((row) => {
+    const monthValue = row.monthStart instanceof Date
+      ? row.monthStart
+      : new Date(row.monthStart as unknown as string);
+
+    const monthName = monthFormatter.format(monthValue).replace('.', '');
+    const capitalizedMonth = monthName.charAt(0).toUpperCase() + monthName.slice(1);
+
+    return {
+      month: `${capitalizedMonth}/${monthValue.getFullYear()}`,
+      count: Number(row.count),
+    };
+  });
 
   // Generate date
   const generatedAt = new Date().toLocaleString('pt-BR', {
@@ -295,7 +321,8 @@ async function fetchReportData() {
     },
     analytics: { satisfactionAverages },
     generalSatisfaction,
-    generatedAt
+    generatedAt,
+    participationTimeline,
   };
 }
 
