@@ -1,6 +1,5 @@
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Label } from "@/components/ui/label";
-import { Building2 } from "lucide-react";
+import { Building2, CheckCircle2 } from "lucide-react";
 
 interface SelectQuestionProps {
   question: string;
@@ -14,16 +13,16 @@ interface SelectQuestionProps {
   questionNumber?: number;
 }
 
-export function SelectQuestion({ 
-  question, 
-  name, 
-  value, 
-  onChange, 
-  options, 
+export function SelectQuestion({
+  question,
+  name,
+  value,
+  onChange,
+  options,
   placeholder = "Selecione uma opção",
-  required = true, 
-  hasError = false, 
-  questionNumber 
+  required = true,
+  hasError = false,
+  questionNumber
 }: SelectQuestionProps) {
   return (
     <div
@@ -54,39 +53,58 @@ export function SelectQuestion({
           )}
         </div>
         <div className="flex-1">
-          <Label className={`text-sm md:text-base font-semibold leading-snug block mb-2 ${
-            hasError ? 'text-destructive' : 'text-slate-800'
-          }`}>
+          <Label
+            className={`text-sm md:text-base font-semibold leading-snug block mb-2 ${
+              hasError ? 'text-destructive' : 'text-slate-800'
+            }`}
+          >
             {question}
           </Label>
 
-            <div className="flex justify-center">
-              <Select value={value} onValueChange={onChange}>
-                <SelectTrigger
-                  className={`w-full max-w-lg h-11 text-base bg-white/95 backdrop-blur-sm border rounded-xl transition-all duration-200 hover:shadow-sm hover:scale-[1.01] focus:scale-[1.01] ${
-                    hasError
-                      ? 'border-destructive/50 focus:border-destructive focus:ring-2 focus:ring-destructive/20'
-                      : 'border-border focus:border-primary hover:border-primary/50 focus:ring-2 focus:ring-primary/20'
-                  }`}
-                >
-                  <SelectValue
-                    placeholder={placeholder}
-                    className={`${value ? 'text-slate-800 font-medium' : 'text-muted-foreground'}`}
-                  />
-                </SelectTrigger>
-                <SelectContent className="bg-white/95 backdrop-blur-md border border-border shadow-xl rounded-xl">
-                  {options.map((option) => (
-                    <SelectItem
-                      key={option.value}
-                      value={option.value}
-                      className="text-sm py-2 px-3 hover:bg-primary/5 hover:text-slate-800 focus:bg-primary/10 focus:text-slate-800 rounded-lg mx-1 transition-colors duration-200"
-                    >
-                      {option.label}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
+          {!value && (
+            <p className="text-xs text-muted-foreground mb-3 italic">
+              {placeholder}
+              {required ? ' *' : ''}
+            </p>
+          )}
+
+          <div className="flex justify-center">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 w-full">
+              {options.map((option, index) => {
+                const isSelected = value === option.value;
+
+                return (
+                  <button
+                    key={option.value}
+                    type="button"
+                    onClick={() => onChange(option.value)}
+                    onKeyDown={(e) => {
+                      if (e.key === 'Enter' || e.key === ' ') {
+                        e.preventDefault();
+                        onChange(option.value);
+                      }
+                    }}
+                    tabIndex={0}
+                    aria-pressed={isSelected}
+                    aria-label={`${option.label} ${isSelected ? '(selecionado)' : ''}`}
+                    className={`option-button-enhanced text-center min-h-[48px] flex items-center justify-center ${
+                      isSelected ? 'option-button-selected-enhanced pulse-success' : 'option-button-unselected-enhanced'
+                    }`}
+                    style={{
+                      animationDelay: `${index * 0.1}s`
+                    }}
+                  >
+                    <div className="flex items-center justify-center gap-2">
+                      {isSelected && <CheckCircle2 className="w-4 h-4 flex-shrink-0" />}
+                      <span className="font-medium leading-tight text-sm sm:text-base">
+                        {option.label}
+                      </span>
+                    </div>
+                  </button>
+                );
+              })}
             </div>
+          </div>
         </div>
       </div>
     </div>
