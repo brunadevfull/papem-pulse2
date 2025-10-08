@@ -58,7 +58,7 @@ export function SurveySection1({ data, onUpdate, errors = [] }: SurveySection1Pr
   };
 
   return (
-    <div className="space-y-3">
+    <div className="space-y-2">
       <SelectQuestion
         questionNumber={1}
         question="Área principal de trabalho:"
