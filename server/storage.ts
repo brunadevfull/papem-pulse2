@@ -58,12 +58,12 @@ export class DatabaseStorage implements IStorage {
   async getResponsesBySetor(): Promise<Record<string, number>> {
     const results = await db
       .select({
-        setor: surveyResponses.setor_trabalho,
+        setor: surveyResponses.setor_localizacao,
         count: count(),
       })
       .from(surveyResponses)
-      .where(sql`${surveyResponses.setor_trabalho} IS NOT NULL`)
-      .groupBy(surveyResponses.setor_trabalho);
+      .where(sql`${surveyResponses.setor_localizacao} IS NOT NULL`)
+      .groupBy(surveyResponses.setor_localizacao);
 
     return results.reduce((acc, { setor, count }) => {
       if (setor) acc[setor] = count;
@@ -74,12 +74,12 @@ export class DatabaseStorage implements IStorage {
   async getResponsesByRancho(): Promise<Record<string, number>> {
     const results = await db
       .select({
-        rancho: surveyResponses.localizacao_rancho,
+        rancho: surveyResponses.rancho_localizacao,
         count: count(),
       })
       .from(surveyResponses)
-      .where(sql`${surveyResponses.localizacao_rancho} IS NOT NULL`)
-      .groupBy(surveyResponses.localizacao_rancho);
+      .where(sql`${surveyResponses.rancho_localizacao} IS NOT NULL`)
+      .groupBy(surveyResponses.rancho_localizacao);
 
     return results.reduce((acc, { rancho, count }) => {
       if (rancho) acc[rancho] = count;
@@ -90,12 +90,12 @@ export class DatabaseStorage implements IStorage {
   async getResponsesByEscala(): Promise<Record<string, number>> {
     const results = await db
       .select({
-        escala: surveyResponses.escala_servico,
+        escala: surveyResponses.escala_servico_tipo,
         count: count(),
       })
       .from(surveyResponses)
-      .where(sql`${surveyResponses.escala_servico} IS NOT NULL`)
-      .groupBy(surveyResponses.escala_servico);
+      .where(sql`${surveyResponses.escala_servico_tipo} IS NOT NULL`)
+      .groupBy(surveyResponses.escala_servico_tipo);
 
     return results.reduce((acc, { escala, count }) => {
       if (escala) acc[escala] = count;

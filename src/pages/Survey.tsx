@@ -11,50 +11,69 @@ import { SurveySection4 } from "@/components/survey/SurveySection4";
 import { SuccessMessage } from "@/components/survey/SuccessMessage";
 
 type SurveyData = {
-  // Section 1
-  setor_trabalho: string;
-  materiais_fornecidos: string;
-  materiais_adequados: string;
-  atendimento_apoio: string;
-  limpeza_adequada: string;
-  temperatura_adequada: string;
-  iluminacao_adequada: string;
-  localizacao_alojamento: string;
-  alojamento_condicoes: string;
-  banheiros_adequados: string;
-  praca_darmas_adequada: string;
-  localizacao_rancho: string;
-  rancho_instalacoes: string;
-  rancho_qualidade: string;
-  escala_servico: string;
-  escala_atrapalha: string;
-  equipamentos_servico: string;
-  tfm_participa: string;
-  tfm_incentivado: string;
-  tfm_instalacoes: string;
-  // Section 2
-  chefe_ouve_ideias: string;
-  chefe_se_importa: string;
-  contribuir_atividades: string;
-  chefe_delega: string;
-  pares_auxiliam: string;
-  entrosamento_setores: string;
+  // Section 1 - Condições do ambiente / conforto
+  setor_localizacao: string;
+  setor_computadores: string;
+  setor_mobiliario: string;
+  setor_limpeza: string;
+  setor_temperatura: string;
+  setor_iluminacao: string;
+  alojamento_localizacao: string;
+  alojamento_limpeza: string;
+  alojamento_temperatura: string;
+  alojamento_iluminacao: string;
+  alojamento_armarios_condicao: string;
+  alojamento_armario_preservado: string;
+  banheiro_localizacao: string;
+  banheiro_vasos_suficientes: string;
+  banheiro_vasos_preservados: string;
+  banheiro_torneiras_funcionam: string;
+  banheiro_chuveiros_suficientes: string;
+  banheiro_chuveiros_funcionam: string;
+  banheiro_limpeza: string;
+  banheiro_iluminacao: string;
+  recreio_localizacao: string;
+  recreio_mobiliario_quantidade: string;
+  recreio_mobiliario_condicao: string;
+  recreio_limpeza: string;
+  recreio_temperatura: string;
+  recreio_iluminacao: string;
+  rancho_localizacao: string;
+  rancho_qualidade_comida: string;
+  rancho_mobiliario_condicao: string;
+  rancho_limpeza: string;
+  rancho_temperatura: string;
+  rancho_iluminacao: string;
+  escala_servico_tipo: string;
+  escala_equipamentos_condicao: string;
+  escala_pernoite_adequada: string;
+  tfm_participa_regularmente: string;
+  tfm_incentivo_pratica: string;
+  tfm_instalacoes_adequadas: string;
+  // Section 2 - Relacionamento
+  encarregado_ouve_melhorias: string;
+  encarregado_fornece_meios: string;
+  disposicao_contribuir_setor: string;
+  encarregado_delega: string;
+  pares_auxiliam_setor: string;
+  relacionamento_intersetorial: string;
   entrosamento_tripulacao: string;
-  convivio_agradavel: string;
-  confianca_respeito: string;
-  // Section 3
-  feedback_desempenho: string;
-  conceito_compativel: string;
-  importancia_atividade: string;
-  trabalho_reconhecido: string;
-  crescimento_estimulado: string;
-  cursos_suficientes: string;
-  programa_treinamento: string;
-  orgulho_trabalhar: string;
-  bem_aproveitado: string;
-  potencial_outra_funcao: string;
+  convivencia_regras: string;
+  confianca_respeito_relacoes: string;
+  integracao_familia_papem: string;
+  // Section 3 - Motivação / Desenvolvimento
+  feedback_desempenho_regular: string;
+  conceito_compativel_desempenho: string;
+  importancia_funcao_papem: string;
+  trabalho_reconhecido_valorizado: string;
+  crescimento_profissional_estimulado: string;
+  cursos_suficientes_atividade: string;
+  programa_adestramento_regular: string;
+  orgulho_trabalhar_papem: string;
+  atuacao_area_especializacao: string;
+  potencial_melhor_em_outra_funcao: string;
   carga_trabalho_justa: string;
-  licenca_autorizada: string;
+  licenca_autorizada_sem_prejuizo: string;
   // Section 4
   aspecto_positivo: string;
   aspecto_negativo: string;
@@ -220,56 +239,36 @@ export default function Survey() {
   };
 
   const getMissingFields = () => {
-    // Campos sempre obrigatórios da seção 1
-    const section1BaseFields = [
-      'setor_trabalho', 'materiais_fornecidos', 'materiais_adequados', 'atendimento_apoio',
-      'limpeza_adequada', 'temperatura_adequada', 'iluminacao_adequada', 'localizacao_alojamento',
-      'localizacao_rancho', 'escala_servico'
+    const section1Fields = [
+      'setor_localizacao', 'setor_computadores', 'setor_mobiliario', 'setor_limpeza', 'setor_temperatura', 'setor_iluminacao',
+      'alojamento_localizacao', 'alojamento_limpeza', 'alojamento_temperatura', 'alojamento_iluminacao', 'alojamento_armarios_condicao', 'alojamento_armario_preservado',
+      'banheiro_localizacao', 'banheiro_vasos_suficientes', 'banheiro_vasos_preservados', 'banheiro_torneiras_funcionam',
+      'banheiro_chuveiros_suficientes', 'banheiro_chuveiros_funcionam', 'banheiro_limpeza', 'banheiro_iluminacao',
+      'recreio_localizacao', 'recreio_mobiliario_quantidade', 'recreio_mobiliario_condicao', 'recreio_limpeza', 'recreio_temperatura', 'recreio_iluminacao',
+      'rancho_localizacao', 'rancho_qualidade_comida', 'rancho_mobiliario_condicao', 'rancho_limpeza', 'rancho_temperatura', 'rancho_iluminacao',
+      'escala_servico_tipo', 'escala_equipamentos_condicao', 'escala_pernoite_adequada',
+      'tfm_participa_regularmente', 'tfm_incentivo_pratica', 'tfm_instalacoes_adequadas'
     ];
 
-    // Campos condicionais da seção 1
-    const section1ConditionalFields = [];
-    
-    // Q9-Q10 dependem de Q8 (alojamento)
-    if (surveyData.localizacao_alojamento) {
-      section1ConditionalFields.push('alojamento_condicoes', 'banheiros_adequados');
-    }
-    
-    // Q11, Q13-Q14 dependem de Q12 (rancho)
-    if (surveyData.localizacao_rancho) {
-      // Q12 (Praça D'armas) só é obrigatória quando rancho for "Praça D'armas"
-      if (surveyData.localizacao_rancho === "Praça D'armas") {
-        section1ConditionalFields.push('praca_darmas_adequada');
-      }
-      section1ConditionalFields.push('rancho_instalacoes', 'rancho_qualidade');
-    }
-    
-    // Q16-Q20 dependem de Q15 (escala)
-    if (surveyData.escala_servico) {
-      section1ConditionalFields.push('escala_atrapalha', 'equipamentos_servico', 'tfm_participa', 'tfm_incentivado', 'tfm_instalacoes');
-    }
-
-    const section1Fields = [...section1BaseFields, ...section1ConditionalFields];
-    
     const section2Fields = [
-      'chefe_ouve_ideias', 'chefe_se_importa', 'contribuir_atividades', 'chefe_delega',
-      'pares_auxiliam', 'entrosamento_setores', 'entrosamento_tripulacao', 'convivio_agradavel',
-      'confianca_respeito'
+      'encarregado_ouve_melhorias', 'encarregado_fornece_meios', 'disposicao_contribuir_setor', 'encarregado_delega',
+      'pares_auxiliam_setor', 'relacionamento_intersetorial', 'entrosamento_tripulacao', 'convivencia_regras',
+      'confianca_respeito_relacoes', 'integracao_familia_papem'
     ];
-    
+
     const section3Fields = [
-      'feedback_desempenho', 'conceito_compativel', 'importancia_atividade', 'trabalho_reconhecido',
-      'crescimento_estimulado', 'cursos_suficientes', 'programa_treinamento', 'orgulho_trabalhar',
-      'bem_aproveitado', 'potencial_outra_funcao', 'carga_trabalho_justa', 'licenca_autorizada'
+      'feedback_desempenho_regular', 'conceito_compativel_desempenho', 'importancia_funcao_papem', 'trabalho_reconhecido_valorizado',
+      'crescimento_profissional_estimulado', 'cursos_suficientes_atividade', 'programa_adestramento_regular', 'orgulho_trabalhar_papem',
+      'atuacao_area_especializacao', 'potencial_melhor_em_outra_funcao', 'carga_trabalho_justa', 'licenca_autorizada_sem_prejuizo'
     ];
-    
+
     const section4Fields = [
       'aspecto_positivo', 'aspecto_negativo', 'proposta_processo', 'proposta_satisfacao'
     ];
 
     const sectionFields = [section1Fields, section2Fields, section3Fields, section4Fields];
     const requiredFields = sectionFields[currentSection];
-    
+
     return requiredFields.filter(field => !surveyData[field as keyof SurveyData]);
   };
 
@@ -458,8 +457,8 @@ export default function Survey() {
                 {currentSection === 3 && `${currentSection + 1}. Comentários e Sugestões`}
               </h2>
               <p className="text-sm text-primary/70 font-medium mt-1">
-                {currentSection === 0 && "20 perguntas"}
-                {currentSection === 1 && "9 perguntas"}
+                {currentSection === 0 && "32 perguntas"}
+                {currentSection === 1 && "10 perguntas"}
                 {currentSection === 2 && "12 perguntas"}
                 {currentSection === 3 && "4 perguntas"}
               </p>

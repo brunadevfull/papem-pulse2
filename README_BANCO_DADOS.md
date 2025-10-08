@@ -45,78 +45,116 @@ Armazena todas as respostas da pesquisa de clima organizacional.
 | `created_at` | timestamp | Data/hora de criação | ✅ |
 | `ip_address` | varchar(45) | IP do respondente (controle duplicação) | ✅ |
 
-#### 🏢 **Seção 1: Condições de Trabalho, Serviço e TFM**
+#### 🏢 **Seção 1: Condições do Ambiente de Trabalho / Conforto**
 
-| Campo | Tipo | Descrição | Seção |
-|-------|------|-----------|-------|
-| `setor_trabalho` | varchar(100) | Área principal de trabalho | Trabalho |
-| `materiais_fornecidos` | varchar(50) | Materiais fornecidos adequadamente | Trabalho |
-| `materiais_adequados` | varchar(50) | Materiais em boas condições | Trabalho |
-| `atendimento_apoio` | varchar(50) | Qualidade do atendimento de apoio | Trabalho |
-| `ambiente_trabalho` | varchar(50) | Ambiente de trabalho adequado | Trabalho |
-| `chefia_disponivel` | varchar(50) | Disponibilidade da chefia | Trabalho |
-| `chefia_orientacao` | varchar(50) | Qualidade das orientações da chefia | Trabalho |
-
-#### 🏠 **Alojamento (Condicional)**
-
-| Campo | Tipo | Descrição | Condição |
-|-------|------|-----------|----------|
-| `localizacao_alojamento` | varchar(100) | Local do alojamento | Opcional |
-| `alojamento_condicoes` | varchar(50) | Condições do alojamento | Se localização informada |
-| `banheiros_adequados` | varchar(50) | Adequação dos banheiros | Se localização informada |
-
-#### 🍽️ **Rancho (Obrigatório)**
-
-| Campo | Tipo | Descrição | Condição |
-|-------|------|-----------|----------|
-| `localizacao_rancho` | varchar(100) | Local do rancho | Sempre obrigatório |
-| `praca_darmas_adequada` | varchar(50) | Adequação da Praça D'armas | Só se rancho = "Praça D'armas" |
-| `rancho_instalacoes` | varchar(50) | Adequação das instalações | Sempre obrigatório |
-| `rancho_qualidade` | varchar(50) | Qualidade da comida | Sempre obrigatório |
-
-#### ⚓ **Escala de Serviço (Obrigatório)**
-
-| Campo | Tipo | Descrição | Condição |
-|-------|------|-----------|----------|
-| `escala_servico` | varchar(100) | Tipo de escala | Sempre obrigatório |
-| `escala_atrapalha` | varchar(50) | Se escala atrapalha trabalho | Se escala informada |
-| `equipamentos_servico` | varchar(50) | Equipamentos em bom estado | Se escala informada |
-| `tfm_participa` | varchar(50) | Participação no TFM | Se escala informada |
-| `tfm_incentivado` | varchar(50) | Incentivo ao TFM | Se escala informada |
-| `tfm_instalacoes` | varchar(50) | Adequação instalações TFM | Se escala informada |
-
-#### 👥 **Seção 2: Relacionamentos**
+**Setor de trabalho**
 
 | Campo | Tipo | Descrição |
 |-------|------|-----------|
-| `pares_auxiliam` | varchar(50) | Pares auxiliam quando necessário |
-| `pares_cooperacao` | varchar(50) | Cooperação entre pares |
-| `subordinados_orientacao` | varchar(50) | Orientação aos subordinados |
-| `subordinados_disponibilidade` | varchar(50) | Disponibilidade para subordinados |
-| `chefia_dialogo` | varchar(50) | Diálogo com a chefia |
-| `chefia_orientacao_relacionamento` | varchar(50) | Orientação da chefia nos relacionamentos |
-| `chefia_disponibilidade` | varchar(50) | Disponibilidade da chefia |
-| `chefia_competencia` | varchar(50) | Competência da chefia |
-| `comunicacao_eficaz` | varchar(50) | Eficácia da comunicação |
-| `informacoes_claras` | varchar(50) | Clareza das informações |
+| `setor_localizacao` | varchar(100) | Localização do setor avaliado |
+| `setor_computadores` | varchar(50) | Adequação dos computadores do setor |
+| `setor_mobiliario` | varchar(50) | Condições do mobiliário e das instalações |
+| `setor_limpeza` | varchar(50) | Limpeza do setor |
+| `setor_temperatura` | varchar(50) | Conforto térmico no setor |
+| `setor_iluminacao` | varchar(50) | Iluminação do setor |
 
-#### 🚀 **Seção 3: Motivação e Desenvolvimento**
+**Alojamentos**
 
 | Campo | Tipo | Descrição |
 |-------|------|-----------|
-| `reconhecimento_trabalho` | varchar(50) | Reconhecimento do trabalho |
-| `oportunidades_crescimento` | varchar(50) | Oportunidades de crescimento |
-| `cursos_capacitacao` | varchar(50) | Disponibilidade de cursos |
-| `atualizacao_conhecimentos` | varchar(50) | Atualização de conhecimentos |
-| `satisfacao_geral` | varchar(50) | Satisfação geral |
-| `recomendar_organizacao` | varchar(50) | Recomendaria a organização |
+| `alojamento_localizacao` | varchar(100) | Alojamento avaliado |
+| `alojamento_limpeza` | varchar(50) | Limpeza do alojamento |
+| `alojamento_temperatura` | varchar(50) | Conforto térmico no alojamento |
+| `alojamento_iluminacao` | varchar(50) | Iluminação do alojamento |
+| `alojamento_armarios_condicao` | varchar(50) | Condições de pintura/preservação dos armários |
+| `alojamento_armario_preservado` | varchar(50) | Autoavaliação sobre preservação do armário pessoal |
+
+**Banheiros**
+
+| Campo | Tipo | Descrição |
+|-------|------|-----------|
+| `banheiro_localizacao` | varchar(100) | Banheiro avaliado |
+| `banheiro_vasos_suficientes` | varchar(50) | Quantidade de vasos sanitários |
+| `banheiro_vasos_preservados` | varchar(50) | Limpeza/preservação dos vasos |
+| `banheiro_torneiras_funcionam` | varchar(50) | Funcionamento das torneiras |
+| `banheiro_chuveiros_suficientes` | varchar(50) | Quantidade de chuveiros |
+| `banheiro_chuveiros_funcionam` | varchar(50) | Funcionamento dos chuveiros |
+| `banheiro_limpeza` | varchar(50) | Limpeza geral |
+| `banheiro_iluminacao` | varchar(50) | Iluminação |
+
+**Salões de recreio**
+
+| Campo | Tipo | Descrição |
+|-------|------|-----------|
+| `recreio_localizacao` | varchar(100) | Salão de recreio avaliado |
+| `recreio_mobiliario_quantidade` | varchar(50) | Quantidade de mobiliário disponível |
+| `recreio_mobiliario_condicao` | varchar(50) | Conservação do mobiliário |
+| `recreio_limpeza` | varchar(50) | Limpeza do salão |
+| `recreio_temperatura` | varchar(50) | Conforto térmico |
+| `recreio_iluminacao` | varchar(50) | Iluminação |
+
+**Rancho**
+
+| Campo | Tipo | Descrição |
+|-------|------|-----------|
+| `rancho_localizacao` | varchar(100) | Local do rancho avaliado |
+| `rancho_qualidade_comida` | varchar(50) | Qualidade da alimentação |
+| `rancho_mobiliario_condicao` | varchar(50) | Condição e limpeza do mobiliário |
+| `rancho_limpeza` | varchar(50) | Limpeza geral do rancho |
+| `rancho_temperatura` | varchar(50) | Conforto térmico no rancho |
+| `rancho_iluminacao` | varchar(50) | Iluminação do rancho |
+
+**Escala de serviço e TFM**
+
+| Campo | Tipo | Descrição |
+|-------|------|-----------|
+| `escala_servico_tipo` | varchar(100) | Escala de serviço do respondente |
+| `escala_equipamentos_condicao` | varchar(50) | Condições dos equipamentos utilizados em serviço |
+| `escala_pernoite_adequada` | varchar(50) | Adequação das instalações de pernoite |
+| `tfm_participa_regularmente` | varchar(50) | Frequência na participação do TFM |
+| `tfm_incentivo_pratica` | varchar(50) | Incentivo institucional ao TFM |
+| `tfm_instalacoes_adequadas` | varchar(50) | Adequação das instalações para o TFM |
+
+#### 👥 **Seção 2: Relacionamento**
+
+| Campo | Tipo | Descrição |
+|-------|------|-----------|
+| `encarregado_ouve_melhorias` | varchar(50) | Encarregado escuta propostas de melhoria |
+| `encarregado_fornece_meios` | varchar(50) | Encarregado disponibiliza recursos necessários |
+| `disposicao_contribuir_setor` | varchar(50) | Interesse pessoal em contribuir com o setor |
+| `encarregado_delega` | varchar(50) | Capacidade do encarregado em delegar responsabilidades |
+| `pares_auxiliam_setor` | varchar(50) | Apoio dos pares na resolução de problemas |
+| `relacionamento_intersetorial` | varchar(50) | Qualidade do relacionamento entre setores |
+| `entrosamento_tripulacao` | varchar(50) | Integração entre integrantes da tripulação |
+| `convivencia_regras` | varchar(50) | Convivência alinhada às regras de bom convívio |
+| `confianca_respeito_relacoes` | varchar(50) | Confiança e respeito no ambiente |
+| `integracao_familia_papem` | varchar(50) | Ações para integrar à Família PAPEM |
+
+#### 🚀 **Seção 3: Motivação / Desenvolvimento Profissional**
+
+| Campo | Tipo | Descrição |
+|-------|------|-----------|
+| `feedback_desempenho_regular` | varchar(50) | Frequência de feedback sobre desempenho |
+| `conceito_compativel_desempenho` | varchar(50) | Compatibilidade entre conceito e desempenho |
+| `importancia_funcao_papem` | varchar(50) | Percepção da importância da função |
+| `trabalho_reconhecido_valorizado` | varchar(50) | Reconhecimento e valorização do trabalho |
+| `crescimento_profissional_estimulado` | varchar(50) | Estímulo ao crescimento profissional |
+| `cursos_suficientes_atividade` | varchar(50) | Cursos/treinamentos suficientes para a atividade |
+| `programa_adestramento_regular` | varchar(50) | Existência de programa regular de adestramento |
+| `orgulho_trabalhar_papem` | varchar(50) | Orgulho em atuar na PAPEM |
+| `atuacao_area_especializacao` | varchar(50) | Atuação alinhada à especialização |
+| `potencial_melhor_em_outra_funcao` | varchar(50) | Percepção sobre melhor aproveitamento em outra função |
+| `carga_trabalho_justa` | varchar(50) | Justiça na carga de trabalho |
+| `licenca_autorizada_sem_prejuizo` | varchar(50) | Facilidade para concessão de licenças especiais |
 
 #### 💬 **Seção 4: Comentários**
 
 | Campo | Tipo | Descrição |
 |-------|------|-----------|
-| `comentarios_gerais` | text | Comentários gerais (opcional) |
-| `sugestoes_melhorias` | text | Sugestões de melhorias (opcional) |
+| `aspecto_positivo` | text | Destaques positivos sobre a OM |
+| `aspecto_negativo` | text | Aspectos que precisam ser solucionados |
+| `proposta_processo` | text | Ideias para melhoria de processos |
+| `proposta_satisfacao` | text | Sugestões para satisfação/motivação da tripulação |
 
 ### 📊 **Tabela de Estatísticas: `survey_stats`**
 
@@ -157,22 +195,9 @@ Todas as questões de escala Likert utilizam os seguintes valores:
 
 ### 📋 **Regras Condicionais**
 
-1. **Alojamento (Q8-Q10)**:
-   - Se `localizacao_alojamento` informado → Q9-Q10 obrigatórias
-
-2. **Rancho (Q11-Q14)**:
-   - `localizacao_rancho` sempre obrigatório
-   - Se `localizacao_rancho = "Praça D'armas"` → Q12 obrigatória
-   - Q13-Q14 sempre obrigatórias quando rancho informado
-
-3. **Escala (Q15-Q20)**:
-   - `escala_servico` sempre obrigatório
-   - Q16-Q20 obrigatórias quando escala informada
-
-### 🎯 **Numeração Dinâmica**
-A numeração das questões se adapta baseada nas respostas:
-- Sem Praça D'armas: Q11 → Q12 → Q13 → Q14 → Q15 → Q16 → Q17 → Q18 → Q19
-- Com Praça D'armas: Q11 → Q12 → Q13 → Q14 → Q15 → Q16 → Q17 → Q18 → Q19 → Q20
+1. **Localizações obrigatórias**: setor, alojamento, banheiro, salão de recreio, rancho e escala exigem seleção de uma opção.
+2. **Likert obrigatórias**: todas as perguntas de escala relacionadas ao bloco escolhido devem ser respondidas.
+3. **TFM**: perguntas sobre participação, incentivo e instalações do Treinamento Físico Militar são sempre obrigatórias.
 
 ---
 
@@ -181,13 +206,13 @@ A numeração das questões se adapta baseada nas respostas:
 ### 🚀 **Índices Recomendados**
 ```sql
 -- Índice para consultas por setor
-CREATE INDEX idx_survey_setor ON survey_responses(setor_trabalho);
+CREATE INDEX idx_survey_setor ON survey_responses(setor_localizacao);
 
 -- Índice para consultas por rancho
-CREATE INDEX idx_survey_rancho ON survey_responses(localizacao_rancho);
+CREATE INDEX idx_survey_rancho ON survey_responses(rancho_localizacao);
 
 -- Índice para consultas por escala
-CREATE INDEX idx_survey_escala ON survey_responses(escala_servico);
+CREATE INDEX idx_survey_escala ON survey_responses(escala_servico_tipo);
 
 -- Índice para consultas temporais
 CREATE INDEX idx_survey_created ON survey_responses(created_at);
@@ -210,20 +235,39 @@ DELETE FROM survey_responses WHERE ip_address = '127.0.0.1';
 
 #### Total de Respostas por Setor
 ```sql
-SELECT setor_trabalho, COUNT(*) as total
-FROM survey_responses 
-WHERE setor_trabalho IS NOT NULL
-GROUP BY setor_trabalho
+SELECT setor_localizacao, COUNT(*) as total
+FROM survey_responses
+WHERE setor_localizacao IS NOT NULL
+GROUP BY setor_localizacao
 ORDER BY total DESC;
 ```
 
 #### Satisfação Geral por Escala
 ```sql
-SELECT escala_servico, satisfacao_geral, COUNT(*) as total
-FROM survey_responses 
-WHERE escala_servico IS NOT NULL AND satisfacao_geral IS NOT NULL
-GROUP BY escala_servico, satisfacao_geral
-ORDER BY escala_servico, total DESC;
+SELECT escala_servico_tipo,
+       CASE resposta
+         WHEN 'Concordo totalmente' THEN 'Muito satisfatório'
+         WHEN 'Concordo' THEN 'Satisfatório'
+         WHEN 'Discordo' THEN 'Insatisfatório'
+         WHEN 'Discordo totalmente' THEN 'Muito insatisfatório'
+         ELSE 'Neutro'
+       END AS classificacao,
+       COUNT(*) AS total
+FROM survey_responses
+CROSS JOIN LATERAL (
+  VALUES
+    (setor_computadores),
+    (setor_mobiliario),
+    (setor_limpeza),
+    (setor_temperatura),
+    (setor_iluminacao),
+    (rancho_qualidade_comida),
+    (escala_equipamentos_condicao),
+    (escala_pernoite_adequada)
+) AS respostas(resposta)
+WHERE escala_servico_tipo IS NOT NULL AND resposta IS NOT NULL
+GROUP BY escala_servico_tipo, classificacao
+ORDER BY escala_servico_tipo, total DESC;
 ```
 
 #### Respostas por Período
@@ -276,4 +320,4 @@ psql -h localhost -U postgres -d papem_clima_organizacional < backup_papem_YYYYM
 
 ---
 
-*Documentação gerada automaticamente pelo Sistema PAPEM - $(date +%Y-%m-%d)*
+*Documentação gerada automaticamente pelo Sistema PAPEM - Atualização 2025*

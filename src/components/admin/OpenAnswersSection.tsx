@@ -151,9 +151,9 @@ export function OpenAnswersSection() {
                         <div className="flex items-center gap-2 text-sm text-muted-foreground flex-wrap">
                           <MessageSquare className="w-4 h-4" />
                           <span>Resposta #{answer.id}</span>
-                          {answer.setor_trabalho && (
+                          {answer.setor_localizacao && (
                             <Badge variant="outline" className="text-xs">
-                              {answer.setor_trabalho}
+                              {answer.setor_localizacao}
                             </Badge>
                           )}
                           {answer.created_at && (

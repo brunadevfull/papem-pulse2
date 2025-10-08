@@ -64,20 +64,28 @@ export function RealTimeStats() {
   // Sample satisfaction data for key questions
   const satisfactionData = [
     {
-      question: "Materiais Fornecidos",
-      ...ratingToPercentage(stats.satisfactionStats.materiais_fornecidos || [])
+      question: "Computadores do Setor",
+      ...ratingToPercentage(stats.satisfactionStats.setor_computadores || [])
     },
     {
-      question: "Limpeza Adequada", 
-      ...ratingToPercentage(stats.satisfactionStats.limpeza_adequada || [])
+      question: "Limpeza do Setor",
+      ...ratingToPercentage(stats.satisfactionStats.setor_limpeza || [])
     },
     {
-      question: "Rancho - Instalações",
-      ...ratingToPercentage(stats.satisfactionStats.rancho_instalacoes || [])
+      question: "Qualidade da Comida do Rancho",
+      ...ratingToPercentage(stats.satisfactionStats.rancho_qualidade_comida || [])
     },
     {
-      question: "Equipamentos Serviço",
-      ...ratingToPercentage(stats.satisfactionStats.equipamentos_servico || [])
+      question: "Equipamentos em Serviço",
+      ...ratingToPercentage(stats.satisfactionStats.escala_equipamentos_condicao || [])
+    },
+    {
+      question: "Instalações de Pernoite",
+      ...ratingToPercentage(stats.satisfactionStats.escala_pernoite_adequada || [])
+    },
+    {
+      question: "Participação no TFM",
+      ...ratingToPercentage(stats.satisfactionStats.tfm_participa_regularmente || [])
     }
   ];
 
