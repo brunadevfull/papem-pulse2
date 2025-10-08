@@ -21,67 +21,67 @@ export function SurveySection2({ data, onUpdate, errors = [] }: SurveySection2Pr
   return (
     <div className="space-y-2">
       <Question
-        questionNumber={21}
-        question="Meu chefe está interessado em ouvir as minhas ideias."
-        name="chefe_ouve_ideias"
-        value={data.chefe_ouve_ideias || ""}
-        onChange={handleChange("chefe_ouve_ideias")}
+        questionNumber={1}
+        question="Meu Encarregado está interessado em ouvir as minhas propostas de melhoria de processo."
+        name="encarregado_ouve_melhorias"
+        value={data.encarregado_ouve_melhorias || ""}
+        onChange={handleChange("encarregado_ouve_melhorias")}
         options={likertOptions}
-        hasError={errors.includes("chefe_ouve_ideias")}
+        hasError={errors.includes("encarregado_ouve_melhorias")}
       />
 
       <Question
-        questionNumber={22}
-        question="O meu chefe se importa comigo como pessoa."
-        name="chefe_se_importa"
-        value={data.chefe_se_importa || ""}
-        onChange={handleChange("chefe_se_importa")}
+        questionNumber={2}
+        question="O meu Encarregado fornece os meios necessários para o cumprimento das minhas atribuições."
+        name="encarregado_fornece_meios"
+        value={data.encarregado_fornece_meios || ""}
+        onChange={handleChange("encarregado_fornece_meios")}
         options={likertOptions}
-        hasError={errors.includes("chefe_se_importa")}
+        hasError={errors.includes("encarregado_fornece_meios")}
       />
 
       <Question
-        questionNumber={23}
-        question="Estou interessado em contribuir com as atividades e tarefas."
-        name="contribuir_atividades"
-        value={data.contribuir_atividades || ""}
-        onChange={handleChange("contribuir_atividades")}
+        questionNumber={3}
+        question="Estou interessado em contribuir com as atividades e tarefas do meu setor."
+        name="disposicao_contribuir_setor"
+        value={data.disposicao_contribuir_setor || ""}
+        onChange={handleChange("disposicao_contribuir_setor")}
         options={likertOptions}
-        hasError={errors.includes("contribuir_atividades")}
+        hasError={errors.includes("disposicao_contribuir_setor")}
       />
 
       <Question
-        questionNumber={24}
-        question="O meu chefe sabe delegar responsabilidades."
-        name="chefe_delega"
-        value={data.chefe_delega || ""}
-        onChange={handleChange("chefe_delega")}
+        questionNumber={4}
+        question="O meu Encarregado sabe delegar responsabilidades."
+        name="encarregado_delega"
+        value={data.encarregado_delega || ""}
+        onChange={handleChange("encarregado_delega")}
         options={likertOptions}
-        hasError={errors.includes("chefe_delega")}
+        hasError={errors.includes("encarregado_delega")}
       />
 
       <Question
-        questionNumber={25}
-        question="Meus pares me auxiliam sempre que preciso para resolver meus problemas de trabalho."
-        name="pares_auxiliam"
-        value={data.pares_auxiliam || ""}
-        onChange={handleChange("pares_auxiliam")}
+        questionNumber={5}
+        question="Meus pares me auxiliam sempre que preciso resolver problemas do meu setor."
+        name="pares_auxiliam_setor"
+        value={data.pares_auxiliam_setor || ""}
+        onChange={handleChange("pares_auxiliam_setor")}
         options={likertOptions}
-        hasError={errors.includes("pares_auxiliam")}
+        hasError={errors.includes("pares_auxiliam_setor")}
       />
 
       <Question
-        questionNumber={26}
-        question="Existe um bom entrosamento entre os setores."
-        name="entrosamento_setores"
-        value={data.entrosamento_setores || ""}
-        onChange={handleChange("entrosamento_setores")}
+        questionNumber={6}
+        question="O relacionamento entre os setores é considerado satisfatório."
+        name="relacionamento_intersetorial"
+        value={data.relacionamento_intersetorial || ""}
+        onChange={handleChange("relacionamento_intersetorial")}
         options={likertOptions}
-        hasError={errors.includes("entrosamento_setores")}
+        hasError={errors.includes("relacionamento_intersetorial")}
       />
 
       <Question
-        questionNumber={27}
+        questionNumber={7}
         question="Existe um bom entrosamento entre os integrantes da Tripulação."
         name="entrosamento_tripulacao"
         value={data.entrosamento_tripulacao || ""}
@@ -91,23 +91,33 @@ export function SurveySection2({ data, onUpdate, errors = [] }: SurveySection2Pr
       />
 
       <Question
-        questionNumber={28}
-        question="O convívio com meus pares e superiores é agradável."
-        name="convivio_agradavel"
-        value={data.convivio_agradavel || ""}
-        onChange={handleChange("convivio_agradavel")}
+        questionNumber={8}
+        question="A convivência com meus pares e superiores observa as regras do “bom convívio”."
+        name="convivencia_regras"
+        value={data.convivencia_regras || ""}
+        onChange={handleChange("convivencia_regras")}
         options={likertOptions}
-        hasError={errors.includes("convivio_agradavel")}
+        hasError={errors.includes("convivencia_regras")}
       />
 
       <Question
-        questionNumber={29}
-        question="Existe confiança e respeito nas relações no ambiente de trabalho."
-        name="confianca_respeito"
-        value={data.confianca_respeito || ""}
-        onChange={handleChange("confianca_respeito")}
+        questionNumber={9}
+        question="Existe confiança e respeito nas relações no meu ambiente de trabalho."
+        name="confianca_respeito_relacoes"
+        value={data.confianca_respeito_relacoes || ""}
+        onChange={handleChange("confianca_respeito_relacoes")}
         options={likertOptions}
-        hasError={errors.includes("confianca_respeito")}
+        hasError={errors.includes("confianca_respeito_relacoes")}
+      />
+
+      <Question
+        questionNumber={10}
+        question="A OM adota as medidas necessárias para que os integrantes da tripulação sintam-se integrados à Família PAPEM."
+        name="integracao_familia_papem"
+        value={data.integracao_familia_papem || ""}
+        onChange={handleChange("integracao_familia_papem")}
+        options={likertOptions}
+        hasError={errors.includes("integracao_familia_papem")}
       />
     </div>
   );

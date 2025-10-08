@@ -95,15 +95,15 @@ export function generateRanchoChartHtml(ranchoDistribution: any[]): string {
 // Generate simple CSS-based satisfaction chart
 export function generateSatisfactionChartHtml(satisfactionAverages: Record<string, number>): string {
   const fieldNames = {
-    'materiais_fornecidos': 'Materiais Fornecidos',
-    'materiais_adequados': 'Adequação dos Materiais', 
-    'atendimento_apoio': 'Atendimento e Apoio',
-    'limpeza_adequada': 'Limpeza e Higiene',
-    'temperatura_adequada': 'Temperatura Ambiente',
-    'iluminacao_adequada': 'Iluminação Adequada',
-    'rancho_instalacoes': 'Instalações do Rancho',
-    'rancho_qualidade': 'Qualidade da Alimentação',
-    'equipamentos_servico': 'Equipamentos de Serviço'
+    'setor_computadores': 'Computadores do Setor',
+    'setor_mobiliario': 'Mobiliário do Setor',
+    'setor_limpeza': 'Limpeza do Setor',
+    'rancho_qualidade_comida': 'Qualidade da Comida do Rancho',
+    'escala_equipamentos_condicao': 'Equipamentos em Serviço',
+    'escala_pernoite_adequada': 'Instalações de Pernoite',
+    'tfm_participa_regularmente': 'Participação no TFM',
+    'tfm_incentivo_pratica': 'Incentivo ao TFM',
+    'tfm_instalacoes_adequadas': 'Instalações para o TFM'
   };
 
   const validData = Object.entries(satisfactionAverages)

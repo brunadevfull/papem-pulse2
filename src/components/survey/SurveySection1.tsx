@@ -21,253 +21,435 @@ const setorOptions = [
   { value: "PAPEM-40", label: "PAPEM-40" },
   { value: "PAPEM-51", label: "PAPEM-51" },
   { value: "PAPEM-52", label: "PAPEM-52" },
-  { value: "SECOM", label: "SECOM" }
+  { value: "SECOM", label: "SECOM" },
+  { value: "GABINETE", label: "GABINETE" }
 ];
 
 const alojamentoOptions = [
-  { value: "CB/MN MASCULINO", label: "CB/MN MASCULINO" },
-  { value: "CB/MN FEMININO", label: "CB/MN FEMININO" },
-  { value: "SO/SG MASCULINO", label: "SO/SG MASCULINO" },
-  { value: "SO/SG FEMININO", label: "SO/SG FEMININO" },
-  { value: "OFICIAIS FEMININO", label: "OFICIAIS FEMININO" },
-  { value: "CT/1T MASCULINO", label: "CT/1T MASCULINO" },
-  { value: "OFICIAIS SUPERIORES MASCULINO", label: "OFICIAIS SUPERIORES MASCULINO" }
+  { value: "CB/MN Masc.", label: "CB/MN Masc." },
+  { value: "CB/MN Fem.", label: "CB/MN Fem." },
+  { value: "SO/SG Masc.", label: "SO/SG Masc." },
+  { value: "SO/SG Fem.", label: "SO/SG Fem." },
+  { value: "Of. Fem.", label: "Of. Fem." },
+  { value: "CT/T Masc.", label: "CT/T Masc." },
+  { value: "Of Sup. Masc.", label: "Of Sup. Masc." }
+];
+
+const banheiroOptions = [
+  { value: "CB/MN Masc.", label: "CB/MN Masc." },
+  { value: "CB/MN Fem.", label: "CB/MN Fem." },
+  { value: "SO/SG Masc.", label: "SO/SG Masc." },
+  { value: "SO/SG Fem.", label: "SO/SG Fem." },
+  { value: "Of. Fem.", label: "Of. Fem." },
+  { value: "CT/T Masc.", label: "CT/T Masc." },
+  { value: "Of Sup. Masc.", label: "Of Sup. Masc." }
+];
+
+const recreioOptions = [
+  { value: "CB/MN Masc-Fem.", label: "CB/MN Masc-Fem." },
+  { value: "SO/SG Masc-Fem.", label: "SO/SG Masc-Fem." },
+  { value: "Oficiais", label: "Oficiais" }
 ];
 
 const ranchoOptions = [
   { value: "Distrito", label: "Distrito" },
-  { value: "DABM", label: "DABM" },
-  { value: "Praça D'armas", label: "Praça D'armas" }
+  { value: "DAbM", label: "DAbM" },
+  { value: "Praça d’armas", label: "Praça d’armas" }
 ];
 
 const escalaOptions = [
   { value: "Oficiais", label: "Oficiais" },
   { value: "SG", label: "SG" },
-  { value: "Cb/MN", label: "Cb/MN" }
+  { value: "CB/MN", label: "CB/MN" },
+  { value: "Não se aplica", label: "Não se aplica" }
 ];
 
 export function SurveySection1({ data, onUpdate, errors = [] }: SurveySection1Props) {
   const handleChange = (field: string) => (value: string) => {
     const updatedData = { ...data, [field]: value };
-    
-    // Limpar Praça D'armas quando rancho não for "Praça D'armas"
-    if (field === "localizacao_rancho" && value !== "Praça D'armas") {
-      updatedData.praca_darmas_adequada = "";
-    }
-    
     onUpdate(updatedData);
   };
 
   return (
     <div className="space-y-2">
       <SelectQuestion
-        questionNumber={1}
-        question="Área principal de trabalho:"
-        name="setor_trabalho"
-        value={data.setor_trabalho || ""}
-        onChange={handleChange("setor_trabalho")}
+        question="Para análise das condições do setor de trabalho, informar a localização do setor:"
+        name="setor_localizacao"
+        value={data.setor_localizacao || ""}
+        onChange={handleChange("setor_localizacao")}
         options={setorOptions}
-        placeholder="Selecione uma área"
-        hasError={errors.includes("setor_trabalho")}
+        placeholder="Selecione um setor"
+        hasError={errors.includes("setor_localizacao")}
+      />
+
+      <Question
+        questionNumber={1}
+        question="Os computadores do setor necessários para realizar o meu trabalho são adequados."
+        name="setor_computadores"
+        value={data.setor_computadores || ""}
+        onChange={handleChange("setor_computadores")}
+        options={likertOptions}
+        hasError={errors.includes("setor_computadores")}
       />
 
       <Question
         questionNumber={2}
-        question="Os materiais e equipamentos necessários para realizar o meu trabalho são fornecidos."
-        name="materiais_fornecidos"
-        value={data.materiais_fornecidos || ""}
-        onChange={handleChange("materiais_fornecidos")}
+        question="Os mobiliários e as instalações do setor são adequados (estão em boas condições)."
+        name="setor_mobiliario"
+        value={data.setor_mobiliario || ""}
+        onChange={handleChange("setor_mobiliario")}
         options={likertOptions}
-        hasError={errors.includes("materiais_fornecidos")}
+        hasError={errors.includes("setor_mobiliario")}
       />
 
       <Question
         questionNumber={3}
-        question="Os materiais e equipamentos disponibilizados para o desempenho do meu trabalho estão adequados (estão em boas condições)."
-        name="materiais_adequados"
-        value={data.materiais_adequados || ""}
-        onChange={handleChange("materiais_adequados")}
+        question="A limpeza do setor é adequada."
+        name="setor_limpeza"
+        value={data.setor_limpeza || ""}
+        onChange={handleChange("setor_limpeza")}
         options={likertOptions}
-        hasError={errors.includes("materiais_adequados")}
+        hasError={errors.includes("setor_limpeza")}
       />
 
       <Question
         questionNumber={4}
-        question="O atendimento realizado pelo Setor de Apoio da OM tem sido prestado dentro das minhas expectativas."
-        name="atendimento_apoio"
-        value={data.atendimento_apoio || ""}
-        onChange={handleChange("atendimento_apoio")}
+        question="A temperatura do setor é adequada."
+        name="setor_temperatura"
+        value={data.setor_temperatura || ""}
+        onChange={handleChange("setor_temperatura")}
         options={likertOptions}
-        hasError={errors.includes("atendimento_apoio")}
+        hasError={errors.includes("setor_temperatura")}
       />
 
       <Question
         questionNumber={5}
-        question="A limpeza é adequada."
-        name="limpeza_adequada"
-        value={data.limpeza_adequada || ""}
-        onChange={handleChange("limpeza_adequada")}
+        question="A iluminação do setor é adequada."
+        name="setor_iluminacao"
+        value={data.setor_iluminacao || ""}
+        onChange={handleChange("setor_iluminacao")}
         options={likertOptions}
-        hasError={errors.includes("limpeza_adequada")}
+        hasError={errors.includes("setor_iluminacao")}
+      />
+
+      <SelectQuestion
+        question="Para análise das condições dos alojamentos, informar a localização do alojamento:"
+        name="alojamento_localizacao"
+        value={data.alojamento_localizacao || ""}
+        onChange={handleChange("alojamento_localizacao")}
+        options={alojamentoOptions}
+        placeholder="Selecione um alojamento"
+        hasError={errors.includes("alojamento_localizacao")}
       />
 
       <Question
         questionNumber={6}
-        question="A temperatura é adequada."
-        name="temperatura_adequada"
-        value={data.temperatura_adequada || ""}
-        onChange={handleChange("temperatura_adequada")}
+        question="A limpeza do alojamento é adequada."
+        name="alojamento_limpeza"
+        value={data.alojamento_limpeza || ""}
+        onChange={handleChange("alojamento_limpeza")}
         options={likertOptions}
-        hasError={errors.includes("temperatura_adequada")}
+        hasError={errors.includes("alojamento_limpeza")}
       />
 
       <Question
         questionNumber={7}
-        question="A iluminação é adequada."
-        name="iluminacao_adequada"
-        value={data.iluminacao_adequada || ""}
-        onChange={handleChange("iluminacao_adequada")}
+        question="A temperatura do alojamento é adequada."
+        name="alojamento_temperatura"
+        value={data.alojamento_temperatura || ""}
+        onChange={handleChange("alojamento_temperatura")}
         options={likertOptions}
-        hasError={errors.includes("iluminacao_adequada")}
+        hasError={errors.includes("alojamento_temperatura")}
       />
 
-      <SelectQuestion
+      <Question
         questionNumber={8}
-        question="Para análise das condições dos alojamentos, informe sua localização:"
-        name="localizacao_alojamento"
-        value={data.localizacao_alojamento || ""}
-        onChange={handleChange("localizacao_alojamento")}
-        options={alojamentoOptions}
-        placeholder="Selecione um alojamento"
-        hasError={errors.includes("localizacao_alojamento")}
+        question="A iluminação do alojamento é adequada."
+        name="alojamento_iluminacao"
+        value={data.alojamento_iluminacao || ""}
+        onChange={handleChange("alojamento_iluminacao")}
+        options={likertOptions}
+        hasError={errors.includes("alojamento_iluminacao")}
       />
 
-      {/* Questões 9, 10 - Sempre visíveis */}
       <Question
         questionNumber={9}
-        question="As instalações do meu alojamento estão em boas condições."
-        name="alojamento_condicoes"
-        value={data.alojamento_condicoes || ""}
-        onChange={handleChange("alojamento_condicoes")}
+        question="Os armários estão em boas condições de pintura e preservação."
+        name="alojamento_armarios_condicao"
+        value={data.alojamento_armarios_condicao || ""}
+        onChange={handleChange("alojamento_armarios_condicao")}
         options={likertOptions}
-        hasError={errors.includes("alojamento_condicoes")}
+        hasError={errors.includes("alojamento_armarios_condicao")}
       />
 
       <Question
         questionNumber={10}
-        question="As instalações dos banheiros da OM são adequadas."
-        name="banheiros_adequados"
-        value={data.banheiros_adequados || ""}
-        onChange={handleChange("banheiros_adequados")}
+        question="Tenho realizado a limpeza e arrumação do meu armário de modo a preservá-lo."
+        name="alojamento_armario_preservado"
+        value={data.alojamento_armario_preservado || ""}
+        onChange={handleChange("alojamento_armario_preservado")}
         options={likertOptions}
-        hasError={errors.includes("banheiros_adequados")}
+        hasError={errors.includes("alojamento_armario_preservado")}
       />
 
       <SelectQuestion
+        question="Para análise das condições dos banheiros, informar a localização do banheiro:"
+        name="banheiro_localizacao"
+        value={data.banheiro_localizacao || ""}
+        onChange={handleChange("banheiro_localizacao")}
+        options={banheiroOptions}
+        placeholder="Selecione um banheiro"
+        hasError={errors.includes("banheiro_localizacao")}
+      />
+
+      <Question
         questionNumber={11}
-        question="Para análise das condições do rancho, informe sua localização (marque apenas uma opção):"
-        name="localizacao_rancho"
-        value={data.localizacao_rancho || ""}
-        onChange={handleChange("localizacao_rancho")}
-        options={ranchoOptions}
-        placeholder="Selecione um local"
-        hasError={errors.includes("localizacao_rancho")}
-      />
-
-      {/* Questão 12 - Só aparece quando localização do rancho for "Praça D'armas" */}
-      {data.localizacao_rancho === "Praça D'armas" && (
-        <Question
-          questionNumber={12}
-          question="As instalações da Praça D'armas e do Salão de Recreio da OM são adequadas."
-          name="praca_darmas_adequada"
-          value={data.praca_darmas_adequada || ""}
-          onChange={handleChange("praca_darmas_adequada")}
-          options={likertOptions}
-          hasError={errors.includes("praca_darmas_adequada")}
-        />
-      )}
-
-      {/* Questões seguintes - numeração dinâmica baseada se Q12 aparece */}
-      <Question
-        questionNumber={data.localizacao_rancho === "Praça D'armas" ? 13 : 12}
-        question="Considero adequadas as instalações do rancho."
-        name="rancho_instalacoes"
-        value={data.rancho_instalacoes || ""}
-        onChange={handleChange("rancho_instalacoes")}
+        question="Os vasos são suficientes para o contingente de usuários."
+        name="banheiro_vasos_suficientes"
+        value={data.banheiro_vasos_suficientes || ""}
+        onChange={handleChange("banheiro_vasos_suficientes")}
         options={likertOptions}
-        hasError={errors.includes("rancho_instalacoes")}
+        hasError={errors.includes("banheiro_vasos_suficientes")}
       />
 
       <Question
-        questionNumber={data.localizacao_rancho === "Praça D'armas" ? 14 : 13}
-        question="Estou satisfeito com a qualidade da comida servida no rancho."
-        name="rancho_qualidade"
-        value={data.rancho_qualidade || ""}
-        onChange={handleChange("rancho_qualidade")}
+        questionNumber={12}
+        question="Os vasos estão em boas condições de limpeza e preservação."
+        name="banheiro_vasos_preservados"
+        value={data.banheiro_vasos_preservados || ""}
+        onChange={handleChange("banheiro_vasos_preservados")}
         options={likertOptions}
-        hasError={errors.includes("rancho_qualidade")}
+        hasError={errors.includes("banheiro_vasos_preservados")}
+      />
+
+      <Question
+        questionNumber={13}
+        question="As torneiras funcionam adequadamente."
+        name="banheiro_torneiras_funcionam"
+        value={data.banheiro_torneiras_funcionam || ""}
+        onChange={handleChange("banheiro_torneiras_funcionam")}
+        options={likertOptions}
+        hasError={errors.includes("banheiro_torneiras_funcionam")}
+      />
+
+      <Question
+        questionNumber={14}
+        question="Os chuveiros são suficientes para o contingente de usuários."
+        name="banheiro_chuveiros_suficientes"
+        value={data.banheiro_chuveiros_suficientes || ""}
+        onChange={handleChange("banheiro_chuveiros_suficientes")}
+        options={likertOptions}
+        hasError={errors.includes("banheiro_chuveiros_suficientes")}
+      />
+
+      <Question
+        questionNumber={15}
+        question="Os chuveiros funcionam adequadamente."
+        name="banheiro_chuveiros_funcionam"
+        value={data.banheiro_chuveiros_funcionam || ""}
+        onChange={handleChange("banheiro_chuveiros_funcionam")}
+        options={likertOptions}
+        hasError={errors.includes("banheiro_chuveiros_funcionam")}
+      />
+
+      <Question
+        questionNumber={16}
+        question="A limpeza do banheiro é adequada."
+        name="banheiro_limpeza"
+        value={data.banheiro_limpeza || ""}
+        onChange={handleChange("banheiro_limpeza")}
+        options={likertOptions}
+        hasError={errors.includes("banheiro_limpeza")}
+      />
+
+      <Question
+        questionNumber={17}
+        question="A iluminação do banheiro é adequada."
+        name="banheiro_iluminacao"
+        value={data.banheiro_iluminacao || ""}
+        onChange={handleChange("banheiro_iluminacao")}
+        options={likertOptions}
+        hasError={errors.includes("banheiro_iluminacao")}
       />
 
       <SelectQuestion
-        questionNumber={data.localizacao_rancho === "Praça D'armas" ? 15 : 14}
-        question="Para análise das condições da escala de serviço, informe sua escala (marque apenas uma opção):"
-        name="escala_servico"
-        value={data.escala_servico || ""}
-        onChange={handleChange("escala_servico")}
+        question="Para análise das condições dos salões de recreio, informar a localização do salão:"
+        name="recreio_localizacao"
+        value={data.recreio_localizacao || ""}
+        onChange={handleChange("recreio_localizacao")}
+        options={recreioOptions}
+        placeholder="Selecione um salão"
+        hasError={errors.includes("recreio_localizacao")}
+      />
+
+      <Question
+        questionNumber={18}
+        question="A quantidade de mobiliário do salão de recreio é adequada para o contingente de usuários."
+        name="recreio_mobiliario_quantidade"
+        value={data.recreio_mobiliario_quantidade || ""}
+        onChange={handleChange("recreio_mobiliario_quantidade")}
+        options={likertOptions}
+        hasError={errors.includes("recreio_mobiliario_quantidade")}
+      />
+
+      <Question
+        questionNumber={19}
+        question="O mobiliário do salão de recreio está em boas condições."
+        name="recreio_mobiliario_condicao"
+        value={data.recreio_mobiliario_condicao || ""}
+        onChange={handleChange("recreio_mobiliario_condicao")}
+        options={likertOptions}
+        hasError={errors.includes("recreio_mobiliario_condicao")}
+      />
+
+      <Question
+        questionNumber={20}
+        question="A limpeza do salão de recreio é adequada."
+        name="recreio_limpeza"
+        value={data.recreio_limpeza || ""}
+        onChange={handleChange("recreio_limpeza")}
+        options={likertOptions}
+        hasError={errors.includes("recreio_limpeza")}
+      />
+
+      <Question
+        questionNumber={21}
+        question="A temperatura do salão de recreio é adequada."
+        name="recreio_temperatura"
+        value={data.recreio_temperatura || ""}
+        onChange={handleChange("recreio_temperatura")}
+        options={likertOptions}
+        hasError={errors.includes("recreio_temperatura")}
+      />
+
+      <Question
+        questionNumber={22}
+        question="A iluminação do salão de recreio é adequada."
+        name="recreio_iluminacao"
+        value={data.recreio_iluminacao || ""}
+        onChange={handleChange("recreio_iluminacao")}
+        options={likertOptions}
+        hasError={errors.includes("recreio_iluminacao")}
+      />
+
+      <SelectQuestion
+        question="Para análise das condições do rancho, informar a localização do rancho:"
+        name="rancho_localizacao"
+        value={data.rancho_localizacao || ""}
+        onChange={handleChange("rancho_localizacao")}
+        options={ranchoOptions}
+        placeholder="Selecione um rancho"
+        hasError={errors.includes("rancho_localizacao")}
+      />
+
+      <Question
+        questionNumber={23}
+        question="Estou satisfeito com a qualidade da comida servida no rancho."
+        name="rancho_qualidade_comida"
+        value={data.rancho_qualidade_comida || ""}
+        onChange={handleChange("rancho_qualidade_comida")}
+        options={likertOptions}
+        hasError={errors.includes("rancho_qualidade_comida")}
+      />
+
+      <Question
+        questionNumber={24}
+        question="O mobiliário do rancho está em boas condições de preservação e limpeza."
+        name="rancho_mobiliario_condicao"
+        value={data.rancho_mobiliario_condicao || ""}
+        onChange={handleChange("rancho_mobiliario_condicao")}
+        options={likertOptions}
+        hasError={errors.includes("rancho_mobiliario_condicao")}
+      />
+
+      <Question
+        questionNumber={25}
+        question="A limpeza do rancho é adequada."
+        name="rancho_limpeza"
+        value={data.rancho_limpeza || ""}
+        onChange={handleChange("rancho_limpeza")}
+        options={likertOptions}
+        hasError={errors.includes("rancho_limpeza")}
+      />
+
+      <Question
+        questionNumber={26}
+        question="A temperatura do rancho é adequada."
+        name="rancho_temperatura"
+        value={data.rancho_temperatura || ""}
+        onChange={handleChange("rancho_temperatura")}
+        options={likertOptions}
+        hasError={errors.includes("rancho_temperatura")}
+      />
+
+      <Question
+        questionNumber={27}
+        question="A iluminação do rancho é adequada."
+        name="rancho_iluminacao"
+        value={data.rancho_iluminacao || ""}
+        onChange={handleChange("rancho_iluminacao")}
+        options={likertOptions}
+        hasError={errors.includes("rancho_iluminacao")}
+      />
+
+      <SelectQuestion
+        question="Para análise das condições da escala de serviço, informar sua escala:"
+        name="escala_servico_tipo"
+        value={data.escala_servico_tipo || ""}
+        onChange={handleChange("escala_servico_tipo")}
         options={escalaOptions}
         placeholder="Selecione uma escala"
-        hasError={errors.includes("escala_servico")}
-      />
-
-      {/* Questões 16-20 - Sempre visíveis */}
-      <Question
-        questionNumber={data.localizacao_rancho === "Praça D'armas" ? 16 : 15}
-        question="A escala de serviço tem atrapalhado as minhas tarefas profissionais."
-        name="escala_atrapalha"
-        value={data.escala_atrapalha || ""}
-        onChange={handleChange("escala_atrapalha")}
-        options={likertOptions}
-        hasError={errors.includes("escala_atrapalha")}
+        hasError={errors.includes("escala_servico_tipo")}
       />
 
       <Question
-        questionNumber={data.localizacao_rancho === "Praça D'armas" ? 17 : 16}
+        questionNumber={28}
         question="Quando estou de serviço, percebo que os equipamentos utilizados estão em boas condições."
-        name="equipamentos_servico"
-        value={data.equipamentos_servico || ""}
-        onChange={handleChange("equipamentos_servico")}
+        name="escala_equipamentos_condicao"
+        value={data.escala_equipamentos_condicao || ""}
+        onChange={handleChange("escala_equipamentos_condicao")}
         options={likertOptions}
-        hasError={errors.includes("equipamentos_servico")}
+        hasError={errors.includes("escala_equipamentos_condicao")}
       />
 
       <Question
-        questionNumber={data.localizacao_rancho === "Praça D'armas" ? 18 : 17}
+        questionNumber={29}
+        question="Quando estou de serviço, as instalações de pernoite são adequadas."
+        name="escala_pernoite_adequada"
+        value={data.escala_pernoite_adequada || ""}
+        onChange={handleChange("escala_pernoite_adequada")}
+        options={likertOptions}
+        hasError={errors.includes("escala_pernoite_adequada")}
+      />
+
+      <Question
+        questionNumber={36}
         question="Participo com regularidade do Treinamento Físico Militar."
-        name="tfm_participa"
-        value={data.tfm_participa || ""}
-        onChange={handleChange("tfm_participa")}
+        name="tfm_participa_regularmente"
+        value={data.tfm_participa_regularmente || ""}
+        onChange={handleChange("tfm_participa_regularmente")}
         options={likertOptions}
-        hasError={errors.includes("tfm_participa")}
+        hasError={errors.includes("tfm_participa_regularmente")}
       />
 
       <Question
-        questionNumber={data.localizacao_rancho === "Praça D'armas" ? 19 : 18}
+        questionNumber={37}
         question="É incentivada a prática de Treinamento Físico Militar."
-        name="tfm_incentivado"
-        value={data.tfm_incentivado || ""}
-        onChange={handleChange("tfm_incentivado")}
+        name="tfm_incentivo_pratica"
+        value={data.tfm_incentivo_pratica || ""}
+        onChange={handleChange("tfm_incentivo_pratica")}
         options={likertOptions}
-        hasError={errors.includes("tfm_incentivado")}
+        hasError={errors.includes("tfm_incentivo_pratica")}
       />
 
       <Question
-        questionNumber={data.localizacao_rancho === "Praça D'armas" ? 20 : 19}
+        questionNumber={38}
         question="Considero as instalações para a prática de Treinamento Físico Militar adequadas."
-        name="tfm_instalacoes"
-        value={data.tfm_instalacoes || ""}
-        onChange={handleChange("tfm_instalacoes")}
+        name="tfm_instalacoes_adequadas"
+        value={data.tfm_instalacoes_adequadas || ""}
+        onChange={handleChange("tfm_instalacoes_adequadas")}
         options={likertOptions}
-        hasError={errors.includes("tfm_instalacoes")}
+        hasError={errors.includes("tfm_instalacoes_adequadas")}
       />
     </div>
   );

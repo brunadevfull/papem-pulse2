@@ -52,16 +52,16 @@ function buildWhereClause(filters: FilterParams) {
   const conditions: any[] = [];
 
   if (filters.setor) {
-    conditions.push(eq(surveyResponses.setor_trabalho, filters.setor));
+    conditions.push(eq(surveyResponses.setor_localizacao, filters.setor));
   }
   if (filters.alojamento) {
-    conditions.push(eq(surveyResponses.localizacao_alojamento, filters.alojamento));
+    conditions.push(eq(surveyResponses.alojamento_localizacao, filters.alojamento));
   }
   if (filters.rancho) {
-    conditions.push(eq(surveyResponses.localizacao_rancho, filters.rancho));
+    conditions.push(eq(surveyResponses.rancho_localizacao, filters.rancho));
   }
   if (filters.escala) {
-    conditions.push(eq(surveyResponses.escala_servico, filters.escala));
+    conditions.push(eq(surveyResponses.escala_servico_tipo, filters.escala));
   }
 
   if (conditions.length === 0) {
@@ -140,7 +140,7 @@ async function getComments(filters: FilterParams): Promise<CommentRecord[]> {
   let query = db
     .select({
       id: surveyResponses.id,
-      setor_trabalho: surveyResponses.setor_trabalho,
+      setor_localizacao: surveyResponses.setor_localizacao,
       aspecto_positivo: surveyResponses.aspecto_positivo,
       aspecto_negativo: surveyResponses.aspecto_negativo,
       proposta_processo: surveyResponses.proposta_processo,
@@ -299,41 +299,41 @@ app.get('/api/stats', async (req, res) => {
     // Setor distribution
     const setorStats = await db
       .select({
-        setor: surveyResponses.setor_trabalho,
+        setor: surveyResponses.setor_localizacao,
         count: count(),
       })
       .from(surveyResponses)
-      .where(sql`${surveyResponses.setor_trabalho} IS NOT NULL`)
-      .groupBy(surveyResponses.setor_trabalho)
+      .where(sql`${surveyResponses.setor_localizacao} IS NOT NULL`)
+      .groupBy(surveyResponses.setor_localizacao)
       .orderBy(sql`count DESC`);
 
     // Alojamento distribution
     const alojamentoStats = await db
       .select({
-        alojamento: surveyResponses.localizacao_alojamento,
+        alojamento: surveyResponses.alojamento_localizacao,
         count: count(),
       })
       .from(surveyResponses)
-      .where(sql`${surveyResponses.localizacao_alojamento} IS NOT NULL`)
-      .groupBy(surveyResponses.localizacao_alojamento)
+      .where(sql`${surveyResponses.alojamento_localizacao} IS NOT NULL`)
+      .groupBy(surveyResponses.alojamento_localizacao)
       .orderBy(sql`count DESC`);
 
     // Rancho distribution  
     const ranchoStats = await db
       .select({
-        rancho: surveyResponses.localizacao_rancho,
+        rancho: surveyResponses.rancho_localizacao,
         count: count(),
       })
       .from(surveyResponses)
-      .where(sql`${surveyResponses.localizacao_rancho} IS NOT NULL`)
-      .groupBy(surveyResponses.localizacao_rancho)
+      .where(sql`${surveyResponses.rancho_localizacao} IS NOT NULL`)
+      .groupBy(surveyResponses.rancho_localizacao)
       .orderBy(sql`count DESC`);
 
     // Response satisfaction levels
     const satisfactionFields = [
-      'materiais_fornecidos', 'materiais_adequados', 'atendimento_apoio',
-      'limpeza_adequada', 'temperatura_adequada', 'iluminacao_adequada',
-      'rancho_instalacoes', 'rancho_qualidade', 'equipamentos_servico'
+      'setor_computadores', 'setor_mobiliario', 'setor_limpeza',
+      'rancho_qualidade_comida', 'escala_equipamentos_condicao', 'escala_pernoite_adequada',
+      'tfm_participa_regularmente', 'tfm_incentivo_pratica', 'tfm_instalacoes_adequadas'
     ];
 
     const satisfactionStats = {};
@@ -373,9 +373,9 @@ app.get('/api/stats', async (req, res) => {
 app.get('/api/analytics', async (req, res) => {
   try {
     const satisfactionFields = [
-      'materiais_fornecidos', 'materiais_adequados', 'atendimento_apoio',
-      'limpeza_adequada', 'temperatura_adequada', 'iluminacao_adequada',
-      'rancho_instalacoes', 'rancho_qualidade', 'equipamentos_servico'
+      'setor_computadores', 'setor_mobiliario', 'setor_limpeza',
+      'rancho_qualidade_comida', 'escala_equipamentos_condicao', 'escala_pernoite_adequada',
+      'tfm_participa_regularmente', 'tfm_incentivo_pratica', 'tfm_instalacoes_adequadas'
     ];
 
     const satisfactionAverages = {};
@@ -459,29 +459,29 @@ async function fetchReportData() {
 
   const setorStats = await db
     .select({
-      setor: surveyResponses.setor_trabalho,
+      setor: surveyResponses.setor_localizacao,
       count: count(),
     })
     .from(surveyResponses)
-    .where(sql`${surveyResponses.setor_trabalho} IS NOT NULL`)
-    .groupBy(surveyResponses.setor_trabalho)
+    .where(sql`${surveyResponses.setor_localizacao} IS NOT NULL`)
+    .groupBy(surveyResponses.setor_localizacao)
     .orderBy(sql`count DESC`);
 
   const ranchoStats = await db
     .select({
-      rancho: surveyResponses.localizacao_rancho,
+      rancho: surveyResponses.rancho_localizacao,
       count: count(),
     })
     .from(surveyResponses)
-    .where(sql`${surveyResponses.localizacao_rancho} IS NOT NULL`)
-    .groupBy(surveyResponses.localizacao_rancho)
+    .where(sql`${surveyResponses.rancho_localizacao} IS NOT NULL`)
+    .groupBy(surveyResponses.rancho_localizacao)
     .orderBy(sql`count DESC`);
 
   // Calculate satisfaction averages
   const satisfactionFields = [
-    'materiais_fornecidos', 'materiais_adequados', 'atendimento_apoio',
-    'limpeza_adequada', 'temperatura_adequada', 'iluminacao_adequada',
-    'rancho_instalacoes', 'rancho_qualidade', 'equipamentos_servico'
+    'setor_computadores', 'setor_mobiliario', 'setor_limpeza',
+    'rancho_qualidade_comida', 'escala_equipamentos_condicao', 'escala_pernoite_adequada',
+    'tfm_participa_regularmente', 'tfm_incentivo_pratica', 'tfm_instalacoes_adequadas'
   ];
 
   const satisfactionAverages = {};
@@ -845,17 +845,17 @@ function ratingToNumber(rating) {
 
 function getFriendlyFieldName(field) {
   const fieldNames = {
-    'materiais_fornecidos': 'Materiais Fornecidos',
-    'materiais_adequados': 'Adequação dos Materiais', 
-    'atendimento_apoio': 'Atendimento e Apoio',
-    'limpeza_adequada': 'Limpeza e Higiene',
-    'temperatura_adequada': 'Temperatura Ambiente',
-    'iluminacao_adequada': 'Iluminação Adequada',
-    'rancho_instalacoes': 'Instalações do Rancho',
-    'rancho_qualidade': 'Qualidade da Alimentação',
-    'equipamentos_servico': 'Equipamentos de Serviço'
+    'setor_computadores': 'Computadores do Setor',
+    'setor_mobiliario': 'Mobiliário do Setor',
+    'setor_limpeza': 'Limpeza do Setor',
+    'rancho_qualidade_comida': 'Qualidade da Comida do Rancho',
+    'escala_equipamentos_condicao': 'Equipamentos em Serviço',
+    'escala_pernoite_adequada': 'Instalações de Pernoite',
+    'tfm_participa_regularmente': 'Participação no TFM',
+    'tfm_incentivo_pratica': 'Incentivo ao TFM',
+    'tfm_instalacoes_adequadas': 'Instalações para o TFM'
   };
-  
+
   return fieldNames[field] || field;
 }
 

@@ -93,23 +93,40 @@ insert_test_data() {
         PGPASSWORD=$DB_PASS psql -h $DB_HOST -p $DB_PORT -U $DB_USER -d $DB_NAME << EOF
 -- Inserir resposta de teste
 INSERT INTO survey_responses (
-    setor_trabalho, materiais_fornecidos, materiais_adequados, atendimento_apoio,
-    ambiente_trabalho, chefia_disponivel, chefia_orientacao,
-    localizacao_rancho, rancho_instalacoes, rancho_qualidade,
-    escala_servico, escala_atrapalha, equipamentos_servico,
-    tfm_participa, tfm_incentivado, tfm_instalacoes,
-    pares_auxiliam, pares_cooperacao, chefia_dialogo, comunicacao_eficaz,
-    reconhecimento_trabalho, satisfacao_geral,
-    comentarios_gerais, ip_address
+    setor_localizacao, setor_computadores, setor_mobiliario, setor_limpeza, setor_temperatura, setor_iluminacao,
+    alojamento_localizacao, alojamento_limpeza, alojamento_temperatura, alojamento_iluminacao, alojamento_armarios_condicao, alojamento_armario_preservado,
+    banheiro_localizacao, banheiro_vasos_suficientes, banheiro_vasos_preservados, banheiro_torneiras_funcionam,
+    banheiro_chuveiros_suficientes, banheiro_chuveiros_funcionam, banheiro_limpeza, banheiro_iluminacao,
+    recreio_localizacao, recreio_mobiliario_quantidade, recreio_mobiliario_condicao, recreio_limpeza, recreio_temperatura, recreio_iluminacao,
+    rancho_localizacao, rancho_qualidade_comida, rancho_mobiliario_condicao, rancho_limpeza, rancho_temperatura, rancho_iluminacao,
+    escala_servico_tipo, escala_equipamentos_condicao, escala_pernoite_adequada,
+    tfm_participa_regularmente, tfm_incentivo_pratica, tfm_instalacoes_adequadas,
+    encarregado_ouve_melhorias, encarregado_fornece_meios, disposicao_contribuir_setor, encarregado_delega, pares_auxiliam_setor,
+    relacionamento_intersetorial, entrosamento_tripulacao, convivencia_regras, confianca_respeito_relacoes, integracao_familia_papem,
+    feedback_desempenho_regular, conceito_compativel_desempenho, importancia_funcao_papem, trabalho_reconhecido_valorizado,
+    crescimento_profissional_estimulado, cursos_suficientes_atividade, programa_adestramento_regular, orgulho_trabalhar_papem,
+    atuacao_area_especializacao, potencial_melhor_em_outra_funcao, carga_trabalho_justa, licenca_autorizada_sem_prejuizo,
+    aspecto_positivo, aspecto_negativo, proposta_processo, proposta_satisfacao,
+    ip_address
 ) VALUES (
-    'SECRETARIA', 'Concordo totalmente', 'Concordo', 'Concordo totalmente',
-    'Concordo totalmente', 'Concordo', 'Concordo totalmente',
-    'Distrito', 'Concordo', 'Concordo totalmente',
-    'Oficiais', 'Discordo', 'Concordo',
-    'Concordo', 'Concordo totalmente', 'Concordo',
-    'Concordo', 'Concordo', 'Concordo totalmente', 'Concordo',
-    'Concordo', 'Concordo totalmente',
-    'Resposta de teste inserida automaticamente pelo script de setup.', '127.0.0.1'
+    'PAPEM-10', 'Concordo totalmente', 'Concordo', 'Concordo totalmente', 'Concordo', 'Concordo',
+    'CB/MN Masc.', 'Concordo', 'Concordo', 'Concordo', 'Concordo', 'Concordo totalmente',
+    'CB/MN Masc.', 'Concordo', 'Concordo totalmente', 'Concordo',
+    'Concordo', 'Concordo', 'Concordo', 'Concordo',
+    'CB/MN Masc-Fem.', 'Concordo', 'Concordo', 'Concordo', 'Concordo', 'Concordo',
+    'Distrito', 'Concordo', 'Concordo', 'Concordo', 'Concordo', 'Concordo',
+    'Oficiais', 'Concordo', 'Concordo',
+    'Concordo', 'Concordo', 'Concordo',
+    'Concordo totalmente', 'Concordo', 'Concordo totalmente', 'Concordo', 'Concordo',
+    'Concordo', 'Concordo', 'Concordo', 'Concordo', 'Concordo',
+    'Concordo', 'Concordo', 'Concordo', 'Concordo',
+    'Concordo', 'Concordo', 'Concordo', 'Concordo',
+    'Concordo', 'Discordo', 'Concordo', 'Concordo',
+    'O rancho tem mantido a qualidade das refeições.',
+    'Precisamos de mais ventilação no salão de recreio.',
+    'Implantar manutenção preventiva trimestral nas instalações.',
+    'Criar campanhas de integração trimestrais para a tripulação.',
+    '127.0.0.1'
 );
 
 -- Inserir estatísticas iniciais
