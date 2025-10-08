@@ -37,49 +37,49 @@ export function SurveySection4({ data, onUpdate, errors = [] }: SurveySection4Pr
   ];
 
   return (
-    <div className="space-y-4">
+    <div className="space-y-2">
       {questions.map((question, index) => {
         const hasError = errors.includes(question.id);
         const questionNumber = index + 1;
-        
+
         return (
-          <div 
+          <div
             key={question.id}
             id={`question-${question.id}`}
-            className={`question-card p-6 mb-4 fade-in ${
+            className={`question-card p-4 mb-3 fade-in ${
               hasError ? 'question-card-error' : ''
             }`}
           >
             {hasError && (
-              <div className="mb-3 p-3 bg-destructive/10 border border-destructive/20 rounded-xl">
+              <div className="mb-2 p-3 bg-destructive/10 border border-destructive/20 rounded-xl">
                 <p className="text-destructive text-sm font-medium flex items-center gap-2">
                   <MessageSquare className="w-4 h-4" />
                   Esta pergunta é obrigatória
                 </p>
               </div>
             )}
-            
-            <div className="flex items-start gap-4 mb-4">
+
+            <div className="flex items-start gap-3 mb-3">
               <div className={`w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0 shadow-sm transition-all duration-300 ${
-                hasError 
-                  ? 'bg-destructive text-white' 
+                hasError
+                  ? 'bg-destructive text-white'
                   : 'bg-gradient-primary text-white'
               }`}>
                 <span className="font-bold text-base">{questionNumber}</span>
               </div>
               <div className="flex-1">
-                <Label className={`text-sm md:text-base font-semibold leading-snug block mb-3 ${
+                <Label className={`text-sm md:text-base font-semibold leading-snug block mb-2 ${
                   hasError ? 'text-destructive' : 'text-slate-800'
                 }`}>
                   {question.question}
                 </Label>
-                
+
                 <div className="relative">
                   <Textarea
                     value={data[question.id] || ''}
                     onChange={(e) => handleChange(question.id, e.target.value)}
                     placeholder={question.placeholder}
-                    className={`min-h-[120px] text-base resize-none transition-all duration-200 ${
+                    className={`min-h-[110px] text-base resize-none transition-all duration-200 ${
                       hasError 
                         ? 'border-destructive focus:border-destructive' 
                         : 'border-slate-300 focus:border-primary'

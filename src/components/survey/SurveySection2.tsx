@@ -18,7 +18,7 @@ export function SurveySection2({ data, onUpdate, errors = [] }: SurveySection2Pr
   };
 
   return (
-    <div className="space-y-3">
+    <div className="space-y-2">
       <Question
         questionNumber={21}
         question="Meu chefe está interessado em ouvir as minhas ideias."
