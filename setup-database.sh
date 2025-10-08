@@ -102,13 +102,13 @@ INSERT INTO survey_responses (
     reconhecimento_trabalho, satisfacao_geral,
     comentarios_gerais, ip_address
 ) VALUES (
-    'SECRETARIA', 'Concordo', 'Concordo', 'Concordo',
-    'Concordo', 'Concordo', 'Concordo',
-    'Distrito', 'Concordo', 'Concordo',
+    'SECRETARIA', 'Concordo totalmente', 'Concordo', 'Concordo totalmente',
+    'Concordo totalmente', 'Concordo', 'Concordo totalmente',
+    'Distrito', 'Concordo', 'Concordo totalmente',
     'Oficiais', 'Discordo', 'Concordo',
-    'Concordo', 'Concordo', 'Concordo',
-    'Concordo', 'Concordo', 'Concordo', 'Concordo',
-    'Concordo', 'Concordo',
+    'Concordo', 'Concordo totalmente', 'Concordo',
+    'Concordo', 'Concordo', 'Concordo totalmente', 'Concordo',
+    'Concordo', 'Concordo totalmente',
     'Resposta de teste inserida automaticamente pelo script de setup.', '127.0.0.1'
 );
 

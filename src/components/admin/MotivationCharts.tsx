@@ -19,10 +19,25 @@ const sectorOptions = [
 ];
 
 const mapRatingToCategory = (rating: string) => {
-  const numeric = ratingToNumber(rating);
-  if (numeric >= 4) return "concordo";
-  if (numeric === 3) return "neutro";
-  return "discordo";
+  switch (rating) {
+    case "Concordo totalmente":
+    case "Muito Satisfeito":
+      return "concordoTotalmente" as const;
+    case "Concordo":
+    case "Satisfeito":
+      return "concordo" as const;
+    case "Discordo totalmente":
+    case "Muito Insatisfeito":
+      return "discordoTotalmente" as const;
+    case "Discordo":
+    case "Insatisfeito":
+      return "discordo" as const;
+    case "Não concordo e nem discordo":
+    case "Neutro":
+      return "neutro" as const;
+    default:
+      return ratingToNumber(rating) >= 4 ? "concordo" : "discordo";
+  }
 };
 
 export function MotivationCharts() {
@@ -84,17 +99,61 @@ export function MotivationCharts() {
           }
 
           const percentages = ratingToPercentage(stats?.ratings ?? []);
-          const counts = { concordo: 0, neutro: 0, discordo: 0 };
+          const counts = {
+            concordoTotalmente: 0,
+            concordo: 0,
+            discordo: 0,
+            discordoTotalmente: 0,
+            neutro: 0,
+          };
           stats?.ratings.forEach((entry) => {
             const category = mapRatingToCategory(entry.rating);
-            counts[category as keyof typeof counts] += entry.count;
+            if (category in counts) {
+              counts[category as keyof typeof counts] += entry.count;
+            }
           });
 
           const chartData = [
-            { category: "Concordo", percentage: percentages.concordo, count: counts.concordo, fill: "hsl(var(--success))" },
-            { category: "Neutro", percentage: percentages.neutro, count: counts.neutro, fill: "hsl(var(--warning))" },
-            { category: "Discordo", percentage: percentages.discordo, count: counts.discordo, fill: "hsl(var(--destructive))" },
+            {
+              category: "Concordo totalmente",
+              key: "concordoTotalmente" as const,
+              percentage: percentages.concordoTotalmente,
+              count: counts.concordoTotalmente,
+              fill: "hsl(var(--success))",
+            },
+            {
+              category: "Concordo",
+              key: "concordo" as const,
+              percentage: percentages.concordo,
+              count: counts.concordo,
+              fill: "#4ade80",
+            },
+            {
+              category: "Discordo",
+              key: "discordo" as const,
+              percentage: percentages.discordo,
+              count: counts.discordo,
+              fill: "#f97316",
+            },
+            {
+              category: "Discordo totalmente",
+              key: "discordoTotalmente" as const,
+              percentage: percentages.discordoTotalmente,
+              count: counts.discordoTotalmente,
+              fill: "hsl(var(--destructive))",
+            },
           ];
+
+          const neutroPercentage = 'neutro' in percentages ? percentages.neutro : undefined;
+          if (typeof neutroPercentage === "number" && counts.neutro > 0) {
+            chartData.splice(2, 0, {
+              category: "Neutro (legado)",
+              key: "neutro" as const,
+              percentage: neutroPercentage,
+              count: counts.neutro,
+              fill: "#94a3b8",
+            });
+          }
 
           const averageScore = stats?.average ? Math.round(stats.average * 20) : null;
 

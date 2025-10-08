@@ -81,6 +81,10 @@ export function RealTimeStats() {
     }
   ];
 
+  const hasLegacyNeutral = satisfactionData.some(
+    (item) => 'neutro' in item && typeof item.neutro === 'number' && item.neutro > 0
+  );
+
   return (
     <div className="space-y-6 p-6">
       {/* Header with refresh */}
@@ -236,9 +240,13 @@ export function RealTimeStats() {
                   />
                   <YAxis />
                   <Tooltip formatter={(value) => [`${value}%`, '']} />
+                  <Bar dataKey="concordoTotalmente" stackId="a" fill="#15803d" name="Concordo totalmente" />
                   <Bar dataKey="concordo" stackId="a" fill="#22c55e" name="Concordo" />
-                  <Bar dataKey="neutro" stackId="a" fill="#eab308" name="Neutro" />
-                  <Bar dataKey="discordo" stackId="a" fill="#ef4444" name="Discordo" />
+                  <Bar dataKey="discordo" stackId="a" fill="#f97316" name="Discordo" />
+                  <Bar dataKey="discordoTotalmente" stackId="a" fill="#ef4444" name="Discordo totalmente" />
+                  {hasLegacyNeutral && (
+                    <Bar dataKey="neutro" stackId="a" fill="#94a3b8" name="Neutro (legado)" />
+                  )}
                 </BarChart>
               </ResponsiveContainer>
             </CardContent>
