@@ -132,11 +132,10 @@ Armazena todas as respostas da pesquisa de clima organizacional.
 
 Todas as questões de escala Likert utilizam os seguintes valores:
 
-- **"Concordo Totalmente"**
+- **"Concordo totalmente"**
 - **"Concordo"**
-- **"Neutro"**
 - **"Discordo"**
-- **"Discordo Totalmente"**
+- **"Discordo totalmente"**
 
 ---
 

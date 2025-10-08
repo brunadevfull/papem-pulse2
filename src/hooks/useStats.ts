@@ -68,51 +68,113 @@ export const ratingToNumber = (rating: string): number => {
     case 'Satisfeito':
     case 'Concordo':
       return 4;
-    case 'Neutro':
-    case 'Não concordo e nem discordo':
-      return 3;
     case 'Insatisfeito':
     case 'Discordo':
       return 2;
     case 'Muito Insatisfeito':
     case 'Discordo totalmente':
       return 1;
+    case 'Neutro':
+    case 'Não concordo e nem discordo':
+      return 3;
     default:
       return 3;
   }
 };
 
+export type RatingPercentageBreakdown = {
+  concordoTotalmente: number;
+  concordo: number;
+  discordo: number;
+  discordoTotalmente: number;
+  neutro?: number;
+};
+
 // Helper function to convert numeric rating to percentage
-export const ratingToPercentage = (ratings: Array<{ rating: string; count: number }>) => {
+export const ratingToPercentage = (
+  ratings: Array<{ rating: string; count: number }>
+): RatingPercentageBreakdown => {
   if (!ratings || ratings.length === 0) {
-    return { concordo: 0, neutro: 0, discordo: 0 };
+    return {
+      concordoTotalmente: 0,
+      concordo: 0,
+      discordo: 0,
+      discordoTotalmente: 0,
+    };
   }
 
-  const total = ratings.reduce((sum, r) => sum + r.count, 0);
-  if (total === 0) {
-    return { concordo: 0, neutro: 0, discordo: 0 };
-  }
+  const counts = {
+    concordoTotalmente: 0,
+    concordo: 0,
+    discordo: 0,
+    discordoTotalmente: 0,
+    neutro: 0,
+  };
 
-  let concordo = 0;
-  let neutro = 0;
-  let discordo = 0;
+  let total = 0;
 
   ratings.forEach(({ rating, count }) => {
-    const value = ratingToNumber(rating);
-    const percentage = (count / total) * 100;
-    
-    if (value >= 4) {
-      concordo += percentage;
-    } else if (value === 3) {
-      neutro += percentage;
-    } else {
-      discordo += percentage;
+    total += count;
+    switch (rating) {
+      case 'Concordo totalmente':
+      case 'Muito Satisfeito':
+        counts.concordoTotalmente += count;
+        break;
+      case 'Concordo':
+      case 'Satisfeito':
+        counts.concordo += count;
+        break;
+      case 'Discordo totalmente':
+      case 'Muito Insatisfeito':
+        counts.discordoTotalmente += count;
+        break;
+      case 'Discordo':
+      case 'Insatisfeito':
+        counts.discordo += count;
+        break;
+      case 'Não concordo e nem discordo':
+      case 'Neutro':
+        counts.neutro += count;
+        break;
+      default:
+        {
+          const value = ratingToNumber(rating);
+          if (value >= 4) {
+            counts.concordo += count;
+          } else if (value <= 2) {
+            counts.discordo += count;
+          } else {
+            counts.neutro += count;
+          }
+        }
+        break;
     }
   });
 
-  return {
-    concordo: Math.round(concordo),
-    neutro: Math.round(neutro),
-    discordo: Math.round(discordo)
+  if (total === 0) {
+    return {
+      concordoTotalmente: 0,
+      concordo: 0,
+      discordo: 0,
+      discordoTotalmente: 0,
+    };
+  }
+
+  const toPercentage = (value: number) => Math.round((value / total) * 100);
+
+  const base = {
+    concordoTotalmente: toPercentage(counts.concordoTotalmente),
+    concordo: toPercentage(counts.concordo),
+    discordo: toPercentage(counts.discordo),
+    discordoTotalmente: toPercentage(counts.discordoTotalmente),
   };
+
+  if (counts.neutro > 0) {
+    return {
+      ...base,
+      neutro: toPercentage(counts.neutro),
+    };
+  }
+
+  return base;
 };

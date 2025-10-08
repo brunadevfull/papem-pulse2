@@ -7,9 +7,10 @@ interface SurveySection2Props {
 }
 
 const likertOptions = [
+  { value: "Concordo totalmente", label: "Concordo totalmente" },
+  { value: "Concordo", label: "Concordo" },
   { value: "Discordo", label: "Discordo" },
-  { value: "Não concordo e nem discordo", label: "Não concordo e nem discordo" },
-  { value: "Concordo", label: "Concordo" }
+  { value: "Discordo totalmente", label: "Discordo totalmente" }
 ];
 
 export function SurveySection2({ data, onUpdate, errors = [] }: SurveySection2Props) {
