@@ -301,7 +301,7 @@ export default function Survey() {
 
   return (
     <div className="min-h-screen" style={{ backgroundColor: '#f1f5f9' }}>
-      <div className="container mx-auto max-w-5xl py-8 px-4 space-y-8">
+      <div className="container mx-auto max-w-6xl py-8 px-4 sm:px-6 space-y-8">
         
         {/* Modern Header */}
         <div className="text-center space-y-8 py-8 fade-in">            
@@ -350,7 +350,7 @@ export default function Survey() {
         </div>
 
         {/* Enhanced Progress Section */}
-        <div className="survey-card-enhanced p-8 slide-up w-full mx-auto">
+        <div className="survey-card-enhanced p-8 slide-up w-full max-w-5xl mx-auto">
           <div className="space-y-4">
             {/* Progress Info */}
             <div className="flex justify-between items-center text-sm text-foreground mb-2">
@@ -472,7 +472,7 @@ export default function Survey() {
         </div>
 
         {/* Enhanced Navigation */}
-        <div className="survey-card-enhanced p-4">
+        <div className="survey-card-enhanced p-4 max-w-5xl mx-auto">
           <div className="flex justify-between items-center">
             <Button
               variant="outline"

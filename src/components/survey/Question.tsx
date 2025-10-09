@@ -16,7 +16,7 @@ export function Question({ question, name, value, onChange, options, required = 
   return (
     <div
       id={`question-${name}`}
-      className={`question-card-enhanced p-3 mb-2 fade-in ${
+      className={`question-card-enhanced px-4 py-4 sm:px-6 sm:py-5 mb-2 fade-in ${
         hasError ? 'question-card-error border-destructive/40' : ''
       }`}
     >
@@ -42,7 +42,7 @@ export function Question({ question, name, value, onChange, options, required = 
           )}
         </div>
         <div className="flex-1">
-          <Label className={`text-xs sm:text-sm font-semibold leading-snug block ${
+          <Label className={`text-sm sm:text-base font-semibold leading-snug block ${
             hasError ? 'text-destructive' : 'text-slate-800'
           }`}>
             {question}
@@ -51,7 +51,7 @@ export function Question({ question, name, value, onChange, options, required = 
       </div>
 
       <div className="flex justify-center">
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-2 w-full max-w-3xl">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-2 w-full max-w-4xl">
           {options.map((option, index) => {
             const isSelected = value === option.value;
 
@@ -79,7 +79,7 @@ export function Question({ question, name, value, onChange, options, required = 
               >
                 <div className="flex items-center justify-center gap-1.5">
                   {isSelected && <CheckCircle2 className="w-3.5 h-3.5 flex-shrink-0" />}
-                  <span className="font-medium leading-tight text-xs sm:text-sm">{option.label}</span>
+                  <span className="font-medium leading-tight text-sm sm:text-base">{option.label}</span>
                 </div>
               </button>
             );
