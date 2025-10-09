@@ -27,7 +27,7 @@ export function SelectQuestion({
   return (
     <div
       id={`question-${name}`}
-      className={`question-card-enhanced p-3 mb-2 fade-in ${
+      className={`question-card-enhanced px-4 py-4 sm:px-6 sm:py-5 mb-2 fade-in ${
         hasError ? 'question-card-error border-destructive/40' : ''
       }`}
     >
@@ -54,7 +54,7 @@ export function SelectQuestion({
         </div>
         <div className="flex-1">
           <Label
-            className={`text-xs sm:text-sm font-semibold leading-snug block mb-1.5 ${
+            className={`text-sm sm:text-base font-semibold leading-snug block mb-1.5 ${
               hasError ? 'text-destructive' : 'text-slate-800'
             }`}
           >
@@ -62,14 +62,14 @@ export function SelectQuestion({
           </Label>
 
           {!value && (
-            <p className="text-[11px] text-muted-foreground mb-2 italic">
+            <p className="text-xs sm:text-sm text-muted-foreground mb-2 italic">
               {placeholder}
               {required ? ' *' : ''}
             </p>
           )}
 
           <div className="flex justify-center">
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2 w-full">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2 w-full max-w-4xl">
               {options.map((option, index) => {
                 const isSelected = value === option.value;
 
@@ -96,7 +96,7 @@ export function SelectQuestion({
                   >
                     <div className="flex items-center justify-center gap-1.5">
                       {isSelected && <CheckCircle2 className="w-3.5 h-3.5 flex-shrink-0" />}
-                      <span className="font-medium leading-tight text-xs sm:text-sm">
+                      <span className="font-medium leading-tight text-sm sm:text-base">
                         {option.label}
                       </span>
                     </div>
